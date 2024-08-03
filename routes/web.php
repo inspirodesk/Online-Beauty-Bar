@@ -4,16 +4,14 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\NewsController;
-use App\Http\Controllers\SiteController;
-use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\AdvertisementController;
-use App\Http\Controllers\ObituaryController;
-use App\Http\Controllers\RememberenceController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\ImageUploadController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\SaleController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\NoteController;
+use App\Http\Controllers\PrintController;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,18 +28,22 @@ Auth::routes();
 Route::get('/', [HomeController::class, 'index'])->name('dashboard');
 
 Route::resources([
+    'home' => HomeController::class,
     'roles' => RoleController::class,
     'users' => UserController::class,
-    'newses' => NewsController::class,
-    'sites' => SiteController::class,
-    'categories' => CategoryController::class,
-    'advertisements' => AdvertisementController::class,
-    'obituaries' => ObituaryController::class,
-    'rememberences' => RememberenceController::class,
     'permissions' => PermissionController::class,
     'settings' => SettingController::class,
-    'pages' => PageController::class
+    'pages' => PageController::class,
+    'sales' => SaleController::class,
+    'orders' => OrderController::class,
+    'notes'=>NoteController::class,
+    'prints'=>PrintController::class
 ]);
 
 Route::post('/upload-image', [ImageUploadController::class, 'upload'])->name('upload-image')->middleware('web');
-
+// routes/web.php
+Route::get('/sync-orders', [OrderController::class, 'syncOrders']);
+Route::patch('/orders/{id}/status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
+Route::patch('/sales/{id}/status', [SaleController::class, 'updateStatus'])->name('sales.updateStatus');
+Route::get('/orders/status/{status}', [OrderController::class, 'showByStatus'])->name('orders.byStatus');
+Route::get('notes/search', [NoteController::class, 'search'])->name('notes.search');

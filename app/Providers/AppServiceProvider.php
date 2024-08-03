@@ -6,6 +6,7 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
 use App\Models\Setting;
+use Illuminate\Support\Facades\Schema;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -24,31 +25,28 @@ class AppServiceProvider extends ServiceProvider
     {
         Paginator::useBootstrapFive();
 
-        View::composer('layouts.nav', function ($view) {
-            $settings = Setting::findOrFail(1);
+        // Define default settings
+        $defaultSettings = [
+            'company_name' => 'Extreme Coders',
+            'email' => 'info@extremecoders.us',
+            'mobile' => '0772353119',
+            'logo' => 'logo',
+            'favicon' => 'favicon',
+            'login_img' => 'login_path',
+            'profile' => 'profile',
+            'desc' => 'Software Development Company',
+            'tags' => 'Jaffna,Software Company, Custom Laravel App',
+            'solution' => 'Extreme Coders 🚀'
+        ];
 
-            // Pass the retrieved values to the navigation Blade view
-            $view->with('setting', $settings);
-        });
+        // Check if the settings table exists and retrieve settings if it does
+        if (Schema::hasTable('settings')) {
+            $settings = Setting::find(1) ?? (object) $defaultSettings; // Use default settings if not found
+        } else {
+            $settings = (object) $defaultSettings; // Convert array to object for consistency
+        }
 
-        View::composer('layouts.app', function ($view) {
-            $settings = Setting::findOrFail(1);
-
-            // Pass the retrieved values to the navigation Blade view
-            $view->with('setting', $settings);
-        });
-
-        View::composer('layouts.auth', function ($view) {
-            $settings = Setting::findOrFail(1);
-
-            // Pass the retrieved values to the navigation Blade view
-            $view->with('setting', $settings);
-        });
-
-        View::composer('dashboard', function ($view) {
-            $settings = Setting::findOrFail(1);
-
-            // Pass the retrieved values to the navigation Blade view
+        View::composer(['layouts.nav', 'layouts.app', 'layouts.auth', 'dashboard'], function ($view) use ($settings) {
             $view->with('setting', $settings);
         });
 

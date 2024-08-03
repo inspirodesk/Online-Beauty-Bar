@@ -5,10 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Setting;
-use App\Models\News;
-use App\Models\Obituary;
-use App\Models\Rememberence;
-use App\Models\Advertisement;
+use App\Models\Order;
 
 class HomeController extends Controller
 {
@@ -27,19 +24,69 @@ class HomeController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    public function index()
+    public function index(Request $request)
     {
-        $obs_sum = Obituary::sum('id');
-        $rems_sum = Rememberence::sum('id');
-        $ads_sum = Advertisement::sum('id');
-        $nws_sum = News::sum('id');
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
 
-        return view('dashboard',
-        ['newses' => News::latest()->paginate(5),
-        'obs' => Obituary::latest()->paginate(5),
-        'rems' => Rememberence::latest()->paginate(5),
-        'ads' => Advertisement::latest()->paginate(5), ],compact('obs_sum', 'rems_sum', 'ads_sum', 'nws_sum'));
+        $orderStatuses = [
+            'pending' => 'Pending',
+            'processing' => 'Processing',
+            'on-hold' => 'On Hold',
+            'completed' => 'Completed',
+            'cancelled' => 'Cancelled',
+            'refunded' => 'Refunded',
+        ];
+
+        $orderCounts = [];
+        $orderAmounts = [];
+
+        foreach ($orderStatuses as $statusKey => $statusName) {
+            $query = \App\Models\Order::where('status', $statusKey);
+
+            if ($startDate) {
+                $query->whereDate('created_at', '>=', $startDate);
+            }
+
+            if ($endDate) {
+                $query->whereDate('created_at', '<=', $endDate);
+            }
+
+            $orderCounts[$statusKey] = $query->count();
+            $orderAmounts[$statusKey] = $query->sum('total'); // Adjust 'total' field as needed
+        }
+
+        // Sales status counts
+        $salesStatuses = [
+            'Pending' => 'Pending',
+            'Getting Ready' => 'Getting Ready',
+            'Packing' => 'Packing',
+            'Sent for Delivery' => 'Sent for Delivery',
+            'Dispatched' => 'Dispatched',
+            'Delivered' => 'Delivered',
+        ];
+
+        $salesCounts = [];
+        $salesAmounts = [];
+
+        foreach ($salesStatuses as $statusKey => $statusName) {
+            $query = \App\Models\Sale::where('delivery_status', $statusKey);
+
+            if ($startDate) {
+                $query->whereDate('created_at', '>=', $startDate);
+            }
+
+            if ($endDate) {
+                $query->whereDate('created_at', '<=', $endDate);
+            }
+
+            $salesCounts[$statusKey] = $query->count();
+            $salesAmounts[$statusKey] = $query->sum('final_total'); // Adjust 'final_total' field as needed
+        }
+
+        return view('dashboard', compact('orderCounts', 'orderAmounts', 'salesCounts', 'salesAmounts', 'orderStatuses', 'salesStatuses'));
     }
+
 
     public function nav()
     {

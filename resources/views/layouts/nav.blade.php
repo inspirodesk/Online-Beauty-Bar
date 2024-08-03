@@ -15,110 +15,67 @@
          <li class="nav-item">
             <a href="/" class="nav-link"><span class="nav-icon"><i class="ti ti-layout-2"></i></span><span class="nav-text">Dashboard</span></a>
          </li>
-        <li class='nav-item nav-hasmenu {{ Request::is("newses/*") || Request::is("categories/*") || Request::is("sites/*") ? "active nav-provoke" : "" }}'>
-           <a href="#!" class='nav-link {{ Request::is("newses/*") || Request::is("categories/*") || Request::is("sites/*")  ? "active" : "" }} '>
+         <li class="nav-item">
+            <a href="/notes" class="nav-link"><span class="nav-icon"><i class="ti ti-layout-2"></i></span><span class="nav-text">Quick Orders</span></a>
+        </li>
+        <li class='nav-item nav-hasmenu {{ Request::is("sales/*")  ? "active nav-provoke" : "" }}'>
+           <a href="#!" class='nav-link {{ Request::is("sales/*")  ? "active" : "" }} '>
              <span class="nav-icon">
                <i class="ti ti-layout-2"></i>
              </span>
-             <span class="nav-text">Newses</span>
+             <span class="nav-text">Sales</span>
              <span class="nav-arrow">
                <i data-feather="chevron-right"></i>
              </span>
            </a>
            <ul class="nav-submenu">
-             @canany(['create-news', 'edit-news', 'delete-news'])
-             <li class='nav-item {{ Request::is("newses") || Request::is("newses/*/edit") ? "active nav-provoke" : "" }}'>
-               <a class="nav-link " href="{{ url('newses') }}">All News</a>
-
+             {{-- @canany(['create-news', 'edit-news', 'delete-news']) --}}
+             <li class='nav-item {{ Request::is("sales/create") || Request::is("sales/create") ? "active nav-provoke" : "" }}'>
+               <a class="nav-link " href="{{ url('sales/create') }}">Add Sale</a>
              </li>
-             @endcanany
-             @canany(['create-news', 'edit-news', 'delete-news'])
-             <li class="nav-item {{ Request::is('newses/create') ? 'active nav-provoke' : '' }}">
-               <a class="nav-link" href="{{ url('newses/create') }}">Add New</a>
-             </li>
-             @endcanany
-             @canany(['create-site', 'edit-site', 'delete-site'])
-             <li class="nav-item {{ Request::is('sites/*') ? 'active nav-provoke' : '' }}">
-               <a class="nav-link" href="{{ url('sites') }}">Sites</a>
-             </li>
-             @endcanany
-             @canany(['create-category', 'edit-category', 'delete-category'])
-             <li class="nav-item {{ Request::is('categories/*')  ? 'active nav-provoke' : '' }}">
-               <a class="nav-link" href="{{ url('categories') }}">Categories</a>
-             </li>
-             @endcanany
+             {{-- @endcanany --}}
+             {{-- @canany(['create-news', 'edit-news', 'delete-news']) --}}
+             <li class='nav-item {{ Request::is("sales") || Request::is("sales") ? "active nav-provoke" : "" }}'>
+                <a class="nav-link " href="{{ url('sales') }}">All Sales</a>
+              </li>
+              {{-- @endcanany --}}
            </ul>
         </li>
-        <li class="nav-item nav-hasmenu {{ Request::is('obituaries') || Request::is('obituaries/*')  ? 'active nav-provoke' : '' }}">
-           <a href="#!" class="nav-link {{ Request::is('obituaries') || Request::is('obituaries/*')  ? 'active' : '' }}">
-             <span class="nav-icon">
-               <i class="ti ti-layout-2"></i>
-             </span>
-             <span class="nav-text">Obituaries</span>
-             <span class="nav-arrow">
-               <i data-feather="chevron-right"></i>
-             </span>
-           </a>
-           <ul class="nav-submenu">
-             @canany(['create-obituary', 'edit-obituary', 'delete-obituary'])
-             <li class="nav-item {{ Request::is('obituaries') || Request::is('obituaries/*/edit') ? 'active nav-provoke' : '' }}">
-               <a class="nav-link " href="{{ url('obituaries') }}">All Obituary</a>
-             </li>
-             @endcanany
-             @canany(['create-obituary', 'edit-obituary', 'delete-obituary'])
-             <li class="nav-item {{ Request::is('obituaries/create') ? 'active nav-provoke' : '' }}">
-               <a class="nav-link" href="{{ url('obituaries/create') }}">Add New</a>
-             </li>
-             @endcanany
-           </ul>
+        <li class='nav-item nav-hasmenu {{ Request::is("orders/*")  ? "active nav-provoke" : "" }}'>
+            <a href="#!" class='nav-link {{ Request::is("orders/*")  ? "active" : "" }} '>
+              <span class="nav-icon">
+                <i class="ti ti-layout-2"></i>
+              </span>
+              <span class="nav-text">Woo Orders</span>
+              <span class="nav-arrow">
+                <i data-feather="chevron-right"></i>
+              </span>
+            </a>
+            <ul class="nav-submenu">
+              <li class='nav-item {{ Request::is("orders") ? "active nav-provoke" : "" }}'>
+                <a class="nav-link " href="{{ url('orders') }}">All Orders</a>
+              </li>
+                <li class="nav-item {{ Request::is('orders/status/pending') ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ route('orders.byStatus', 'pending') }}">Pending Orders</a>
+                </li>
+                <li class="nav-item {{ Request::is('orders/status/on-hold') ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ route('orders.byStatus', 'on-hold') }}">On-Hold Orders</a>
+                </li>
+                <li class="nav-item {{ Request::is('orders/status/processing') ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ route('orders.byStatus', 'processing') }}">Processing Orders</a>
+                </li>
+                <li class="nav-item {{ Request::is('orders/status/completed') ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ route('orders.byStatus', 'completed') }}">Completed Orders</a>
+                </li>
+                <li class="nav-item {{ Request::is('orders/status/cancelled') ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ route('orders.byStatus', 'cancelled') }}">Cancelled Orders</a>
+                </li>
+            </ul>
+         </li>
+        <li class="nav-item">
+            <a href="/prints" target="_blank" class="nav-link"><span class="nav-icon"><i class="ti ti-layout-2"></i></span><span class="nav-text">Prints</span></a>
         </li>
-        <li class="nav-item nav-hasmenu {{ Request::is('rememberences') || Request::is('rememberences/*')  ? 'active nav-provoke' : '' }}">
-           <a href="#!" class="nav-link {{ Request::is('rememberences') || Request::is('rememberences/*')  ? 'active' : '' }}">
-             <span class="nav-icon">
-               <i class="ti ti-layout-2"></i>
-             </span>
-             <span class="nav-text">Remembrances</span>
-             <span class="nav-arrow">
-               <i data-feather="chevron-right"></i>
-             </span>
-           </a>
-           <ul class="nav-submenu">
-             @canany(['create-rememberence', 'edit-rememberence', 'delete-rememberence'])
-             <li class="nav-item {{ Request::is('/rememberences') || Request::is('rememberences/*/edit') ? 'active nav-provoke' : '' }}">
-               <a class="nav-link " href="{{ url('/rememberences') }}">All Remembrance</a>
-             </li>
-             @endcanany
-             @canany(['create-rememberence', 'edit-rememberence', 'delete-rememberence'])
-             <li class="nav-item {{ Request::is('/rememberences/create') ? 'active nav-provoke' : '' }}">
-               <a class="nav-link" href="{{ url('/rememberences/create') }}">Add New</a>
-             </li>
-             @endcanany
-           </ul>
-        </li>
-        <li class="nav-item nav-hasmenu {{ Request::is('advertisements') || Request::is('advertisements/*')  ? 'active nav-provoke' : '' }}">
-           <a href="#!" class="nav-link {{ Request::is('advertisements') || Request::is('advertisements/*')  ? 'active' : '' }}">
-             <span class="nav-icon">
-               <i class="ti ti-layout-2"></i>
-             </span>
-             <span class="nav-text">Advertisements</span>
-             <span class="nav-arrow">
-               <i data-feather="chevron-right"></i>
-             </span>
-           </a>
-           <ul class="nav-submenu">
-             @canany(['create-advertisement', 'edit-advertisement', 'delete-advertisement'])
-             <li class="nav-item {{ Request::is('advertisements') || Request::is('advertisements/*/edit') ? 'active nav-provoke' : '' }}">
-               <a class="nav-link " href="{{ url('advertisements') }}">All Advertisement</a>
-             </li>
-             @endcanany
-             @canany(['create-advertisement', 'edit-advertisement', 'delete-advertisement'])
-             <li class="nav-item {{ Request::is('advertisements/create') ? 'active nav-provoke' : '' }}">
-               <a class="nav-link" href="{{ url('advertisements/create') }}">Add New</a>
-             </li>
-             @endcanany
-           </ul>
-        </li>
-         <li class="nav-item nav-hasmenu {{ Request::is('roles/*') || Request::is('users/*')  ? 'active nav-provoke' : '' }}">
+        <li class="nav-item nav-hasmenu {{ Request::is('roles/*') || Request::is('users/*')  ? 'active nav-provoke' : '' }}">
            <a href="#!" class="nav-link {{ Request::is('roles') || Request::is('users')  ? 'active' : '' }}">
              <span class="nav-icon">
                <i class="ti ti-layout-2"></i>
@@ -159,9 +116,6 @@
                <a class="nav-link" href="{{ url('/api') }}">REST API</a>
              </li>
            </ul>
-         </li>
-         <li class="nav-item">
-            <a href="/pages" class="nav-link"><span class="nav-icon"><i class="ti ti-layout-2"></i></span><span class="nav-text">Pages</span></a>
          </li>
          <li class="nav-item">
            <a class="nav-link" href="{{ route('logout') }}" onclick="event.preventDefault();

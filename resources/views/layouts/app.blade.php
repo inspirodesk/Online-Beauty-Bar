@@ -53,11 +53,6 @@
 <div class="page-content-wrapper">
     <div class="content-container">
         <div class="page-content">
-            @if ($message = Session::get('success'))
-                <div class="alert alert-success text-center" role="alert">
-                    {{ $message }}
-                </div>
-            @endif
             @yield('content')
         </div>
     </div>
@@ -74,8 +69,6 @@
 </footer>
 
 @include('components.scripts')
-
-@include('components.modal-scripts')
 
 </body>
 </html>
