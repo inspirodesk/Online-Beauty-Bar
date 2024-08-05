@@ -14,8 +14,14 @@ class SaleController extends Controller
     // Display a listing of the resource
     public function index()
     {
-        $sales = Sale::with('products')->get();
+        $sales = Sale::with('products')->where('block_status', 'Active')->get();
         return view('modules.sales.index', compact('sales'));
+    }
+
+    public function blockList()
+    {
+        $sales = Sale::with('products')->where('block_status', 'Block')->get();
+        return view('modules.sales.block-list', compact('sales'));
     }
 
     // Show the form for creating a new resource
@@ -27,10 +33,11 @@ class SaleController extends Controller
     // Store a newly created resource in storage
     public function store(Request $request)
     {
+        // Generate a unique ID
         do {
-            $uniqueId = Str::upper(Str::random(8));  // Generate a unique ID
-            $exists = Sale::where('cus_id', $uniqueId)->exists(); // Check if it already exists
-        } while ($exists); // Repeat until a unique ID is found
+            $uniqueId = Str::upper(Str::random(8));
+            $exists = Sale::where('cus_id', $uniqueId)->exists();
+        } while ($exists);
 
         $request->validate([
             'customer_name' => 'required|string|max:255',
@@ -52,16 +59,29 @@ class SaleController extends Controller
             'products.*.quantity' => 'required|numeric|min:0',
         ]);
 
+        // Check if the customer exists and their block status
+        $existingCustomer = Sale::where('contact_number', $request->contact_number)->first();
 
+        if ($existingCustomer && $existingCustomer->block_status == 'Block') {
+            return redirect()->back()->withErrors(['contact_number' => 'This customer is already in the block list.']);
+        }
 
-        $customer = new Customer();
+        if (!$existingCustomer) {
+            // If customer does not exist, create a new customer
+            $customer = new Customer();
             $customer->name = $request->customer_name;
             $customer->status = $request->delivery_status;
             $customer->link_id = $uniqueId;
             $customer->address = $request->address;
             $customer->phone_no = $request->contact_number;
             $customer->save();
+        } else {
+            // If customer exists, use the existing customer
+            $customer = $existingCustomer;
+            $uniqueId = $customer->link_id;
+        }
 
+        // Create a new sale
         $sale = new Sale($request->all());
 
         if ($request->hasFile('attachment')) {
@@ -70,7 +90,7 @@ class SaleController extends Controller
         }
 
         $sale->cus_id = $uniqueId;
-        $sale->discount = 0;
+        $sale->block_status = 'Active';
         $sale->save();
 
         // Save associated products
@@ -80,6 +100,8 @@ class SaleController extends Controller
 
         return redirect()->route('sales.index')->with('success', 'Sale created successfully.');
     }
+
+
 
     // Display the specified resource
     public function show($id)
@@ -145,6 +167,7 @@ class SaleController extends Controller
             $sale->attachment = $path;
         }
 
+
         $sale->save();
 
         // Update associated products
@@ -202,5 +225,37 @@ class SaleController extends Controller
         // Redirect with success message
         return redirect()->route('sales.index')->with('success', 'Order status updated successfully.');
     }
+
+    public function block(Request $request, $id)
+    {
+        $request->validate([
+            'block_status' => 'required|string|in:Active,Block',
+        ]);
+
+        $sale = Sale::findOrFail($id);
+        $sale->block_status = $request->input('block_status');
+        $sale->save();
+
+        return redirect()->route('sales.index')->with('success', 'Customer status updated successfully.');
+    }
+
+    public function deleteUser($id)
+    {
+        $sale = Sale::findOrFail($id);
+
+        // Delete attachment if it exists
+        if ($sale->attachment) {
+            Storage::delete($sale->attachment);
+        }
+
+        // Delete associated products
+        $sale->products()->delete();
+
+        $sale->delete();
+
+        return back()->with('success', 'Block sale deleted successfully.');
+    }
+
+
 
 }

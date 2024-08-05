@@ -2,18 +2,13 @@
 
 @section('content')
 <div class="container">
-    <h2>Sales</h2>
+    <h2>Block Sales</h2>
 
     @if (session('success'))
         <div class="alert alert-success">
             {{ session('success') }}
         </div>
     @endif
-
-    <!-- Align the button to the right -->
-    <div class="text-end mb-3">
-        <a href="{{ route('sales.create') }}" class="btn btn-primary">Create Sale</a>
-    </div>
     <table id="sales-table" class="table table-bordered">
         <thead>
             <tr>
@@ -29,7 +24,7 @@
         </thead>
         <tbody>
             @foreach ($sales as $sale)
-                <tr class="sale-row" data-block-status="{{ $sale->block_status }}">
+                <tr>
                     <td>{{ $sale->id }}</td>
                     <td>{{ $sale->customer_name }}</td>
                     <td>{{ $sale->contact_number }}</td>
@@ -43,7 +38,7 @@
                     <td>
                         <a href="{{ route('sales.edit', $sale->id) }}" class="btn btn-sm btn-warning">Edit</a>
                         <a href="{{ route('sales.show', $sale->id) }}" class="btn btn-sm btn-success">Show</a>
-                        <form action="{{ route('sales.destroy', $sale->id) }}" method="POST" style="display:inline-block;">
+                        <form action="{{ route('sales.deleteUser', $sale->id) }}" method="POST" style="display:inline-block;">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
@@ -96,44 +91,37 @@
 <script>
 $(document).ready(function() {
     $('#sales-table').DataTable();
-
-    // Handle block status filter
-    $('#block-status-filter').on('change', function() {
-        var selectedStatus = $(this).val().toLowerCase();
-        $('.sale-row').each(function() {
-            var rowStatus = $(this).data('block-status').toLowerCase();
-            if (selectedStatus === "" || rowStatus === selectedStatus) {
-                $(this).show();
-            } else {
-                $(this).hide();
-            }
-        });
-    });
-
-    // Handle dropdown item click for block status
-    $('.dropdown-item').on('click', function(e) {
-        e.preventDefault();
-        var status = $(this).data('status');
-        var form = $(this).closest('form');
-
-        // Update hidden field with selected status
-        form.find('input[name="block_status"]').val(status);
-        form.submit();
-    });
-
-    // Handle dropdown item click for delivery status
-    $('.dropdown-item').on('click', function(e) {
-        e.preventDefault();
-        var status = $(this).data('status');
-        var form = $(this).closest('form');
-
-        // Update hidden field with selected status
-        form.find('input[name="block_status"]').val(status);
-        form.submit();
-    });
 });
 </script>
-
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        // Handle dropdown item click
+        $('.dropdown-item').on('click', function(e) {
+            e.preventDefault();
+            var status = $(this).data('status');
+            var form = $(this).closest('form');
+
+            // Update hidden field with selected status
+            form.find('input[name="delivery_status"]').val(status);
+            form.submit();
+        });
+    });
+</script>
+<script>
+    document.querySelectorAll('.dropdown-item').forEach(item => {
+        item.addEventListener('click', function (e) {
+            e.preventDefault();
+            let status = this.getAttribute('data-status');
+            document.getElementById('block_status').value = status;
+            this.closest('form').submit();
+        });
+    });
+</script>
+
 @endsection
+
+ck_c96608daa0d2cecfa73918bfa00d5e277549667e
+cs_700dbb85ac64aa70f0bc58b021ac6ba3967662cb

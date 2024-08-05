@@ -47,3 +47,7 @@ Route::patch('/orders/{id}/status', [OrderController::class, 'updateStatus'])->n
 Route::patch('/sales/{id}/status', [SaleController::class, 'updateStatus'])->name('sales.updateStatus');
 Route::get('/orders/status/{status}', [OrderController::class, 'showByStatus'])->name('orders.byStatus');
 Route::get('notes/search', [NoteController::class, 'search'])->name('notes.search');
+Route::patch('sales/{id}/block', [SaleController::class, 'block'])->name('sales.block');
+Route::get('/block-list', [SaleController::class, 'blockList'])->name('sales.blockList');
+Route::delete('/sales/{id}', [SaleController::class, 'deleteUser'])->name('sales.deleteUser');
+

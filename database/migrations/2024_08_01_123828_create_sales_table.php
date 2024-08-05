@@ -27,6 +27,7 @@ return new class extends Migration
             $table->decimal('subtotal', 8, 2)->default(0);
             $table->decimal('final_total', 8, 2)->default(0);
             $table->string('attachment')->nullable();
+            $table->string('block_status');
             $table->timestamps();
         });
     }

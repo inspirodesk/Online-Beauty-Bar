@@ -23,6 +23,7 @@ class Sale extends Model
         'subtotal',
         'final_total',
         'attachment',
+        'block_status'
     ];
 
     protected $casts = [

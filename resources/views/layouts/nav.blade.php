@@ -18,8 +18,8 @@
          <li class="nav-item">
             <a href="/notes" class="nav-link"><span class="nav-icon"><i class="ti ti-layout-2"></i></span><span class="nav-text">Quick Orders</span></a>
         </li>
-        <li class='nav-item nav-hasmenu {{ Request::is("sales/*")  ? "active nav-provoke" : "" }}'>
-           <a href="#!" class='nav-link {{ Request::is("sales/*")  ? "active" : "" }} '>
+        <li class='nav-item nav-hasmenu {{ Request::is("sales/*") ||  Request::is("/block-list") ? "active nav-provoke" : "" }}'>
+           <a href="#!" class='nav-link {{ Request::is("sales/*") ||  Request::is("/block-list") ? "active" : "" }} '>
              <span class="nav-icon">
                <i class="ti ti-layout-2"></i>
              </span>
@@ -37,6 +37,9 @@
              {{-- @canany(['create-news', 'edit-news', 'delete-news']) --}}
              <li class='nav-item {{ Request::is("sales") || Request::is("sales") ? "active nav-provoke" : "" }}'>
                 <a class="nav-link " href="{{ url('sales') }}">All Sales</a>
+              </li>
+              <li class='nav-item {{ Request::is("/block-list") ? "active nav-provoke" : "" }}'>
+                <a class="nav-link " href="{{ url('/block-list') }}">Block Sales</a>
               </li>
               {{-- @endcanany --}}
            </ul>
