@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9d94c6182e399f00f4201dd9cbc1c8fc",
+    "content-hash": "df07a24852c4d9a0d136fac03250904c",
     "packages": [
         {
             "name": "automattic/woocommerce",
@@ -1166,16 +1166,16 @@
         },
         {
             "name": "laravel/framework",
-            "version": "v10.48.18",
+            "version": "v10.48.19",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "d9729d476c3efe79f950ebcb6de1ec8199a421e6"
+                "reference": "d816681a99a8fe2ea42fdf793b401dd3b34775a7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/d9729d476c3efe79f950ebcb6de1ec8199a421e6",
-                "reference": "d9729d476c3efe79f950ebcb6de1ec8199a421e6",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/d816681a99a8fe2ea42fdf793b401dd3b34775a7",
+                "reference": "d816681a99a8fe2ea42fdf793b401dd3b34775a7",
                 "shasum": ""
             },
             "require": {
@@ -1369,7 +1369,7 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2024-07-30T15:05:11+00:00"
+            "time": "2024-08-06T14:06:43+00:00"
         },
         {
             "name": "laravel/prompts",
@@ -2555,6 +2555,55 @@
                 "source": "https://github.com/nikic/PHP-Parser/tree/v5.1.0"
             },
             "time": "2024-07-01T20:03:41+00:00"
+        },
+        {
+            "name": "notifylk/notify-php",
+            "version": "1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/notifylk/notify-php.git",
+                "reference": "9bc805a0cb6339d7c122ccadac530fa331cc2120"
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-json": "*",
+                "ext-mbstring": "*",
+                "php": ">=5.4"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "~1.12",
+                "phpunit/phpunit": "~4.8",
+                "satooshi/php-coveralls": "~1.0",
+                "squizlabs/php_codesniffer": "~2.6"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "NotifyLk\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "NotifyLk\\": "test/"
+                }
+            },
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "Swagger and contributors",
+                    "homepage": "https://github.com/swagger-api/swagger-codegen"
+                }
+            ],
+            "homepage": "http://swagger.io",
+            "keywords": [
+                "api",
+                "php",
+                "sdk",
+                "swagger"
+            ],
+            "time": "2017-06-16T04:30:31+00:00"
         },
         {
             "name": "nunomaduro/termwind",
@@ -8532,7 +8581,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "notifylk/notify-php": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

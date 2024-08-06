@@ -9,9 +9,37 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Http;
+use GuzzleHttp\Client;
 
 class SaleController extends Controller
 {
+    private function sendSms($to, $message)
+    {
+        // Create a new GuzzleHTTP client instance
+        $client = new Client();
+
+        // Define the API endpoint and query parameters
+        $apiUrl = 'https://app.notify.lk/api/v1/send';
+        $params = [
+            'user_id' => '27674',
+            'api_key' => '8ZfgzJkzwhigCuMcWYLM',
+            'sender_id' => 'OnBeautyBar',
+            'to' => $to,
+            'message' => $message,
+        ];
+
+        // Send a POST request to the API endpoint
+        $response = $client->post($apiUrl, ['query' => $params]);
+
+        // Check if the request was successful
+        if ($response->getStatusCode() == 200) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
     // Display a listing of the resource
     public function index()
     {
@@ -98,6 +126,31 @@ class SaleController extends Controller
         // Save associated products
         foreach ($request->input('products') as $productData) {
             $sale->products()->create($productData);
+        }
+
+        // Send SMS based on delivery status
+        $customerName = $request->customer_name;
+        $contactNumber = $request->contact_number;
+        $deliveryStatus = $request->delivery_status;
+        $message = '';
+
+        switch ($deliveryStatus) {
+            case 'Pending':
+                $message = "Dear $customerName, your order has been successfully placed.";
+                break;
+            case 'Packing':
+                $message = "Dear $customerName, your product has been packed successfully.";
+                break;
+            case 'Sent for Delivery':
+                $message = "Dear $customerName, your product has been sent for delivery.";
+                break;
+            default:
+                // No SMS for other statuses
+                break;
+        }
+
+        if ($message) {
+            $this->sendSms($contactNumber, $message);
         }
 
         return redirect()->route('sales.index')->with('success', 'Sale created successfully.');
@@ -226,6 +279,31 @@ class SaleController extends Controller
             $customer = Customer::where('link_id', $sale->cus_id)->firstOrFail();
             $customer->status = $request->input('delivery_status');
             $customer->save();
+
+            // Send SMS based on delivery status
+            $customerName = $customer->name;
+            $contactNumber = $customer->phone_no;
+            $deliveryStatus = $customer->status;
+            $message = '';
+
+            switch ($deliveryStatus) {
+                case 'Pending':
+                    $message = "Dear $customerName, your order has been successfully placed.";
+                    break;
+                case 'Packing':
+                    $message = "Dear $customerName, your product has been packed successfully.";
+                    break;
+                case 'Sent for Delivery':
+                    $message = "Dear $customerName, your product has been sent for delivery.";
+                    break;
+                default:
+                    // No SMS for other statuses
+                    break;
+            }
+
+            if ($message) {
+                $this->sendSms($contactNumber, $message);
+            }
         }
 
         // Redirect with success message
@@ -295,25 +373,31 @@ class SaleController extends Controller
         ]);
 
         // Prepare data for the API request
-        $api_key = env('API_KEY');
-        $client_id = env('FDE_CLIENT_ID');
+        $api_key = "api66adc8929c367";
+        $client_id = "2306";
 
-        $response = Http::post('https://fardardomestic.com/api/p_request_v1.02.php', [
-            'client_id' => $client_id,
-            'api_key' => $api_key,
-            'recipient_name' => $request->recipient_name,
-            'recipient_contact_no' => $request->recipient_contact_no,
-            'recipient_address' => $request->recipient_address,
-            'recipient_city' => $request->recipient_city,
-            'parcel_type' => $request->parcel_type,
-            'parcel_description' => $request->parcel_description,
-            'cod_amount' => $request->cod_amount,
-            'order_id' => $request->order_id,
-            'exchange' => $request->exchange,
+// Create a new GuzzleHTTP client instance
+    $client = new Client();
+
+        // Send the request to the API endpoint
+        $response = $client->post('https://fardardomestic.com/api/p_request_v1.02.php', [
+            'form_params' => [
+                'client_id' => $client_id,
+                'api_key' => $api_key,
+                'recipient_name' => $request->recipient_name,
+                'recipient_contact_no' => $request->recipient_contact_no,
+                'recipient_address' => $request->recipient_address,
+                'recipient_city' => $request->recipient_city,
+                'parcel_type' => $request->parcel_type,
+                'parcel_description' => $request->parcel_description,
+                'cod_amount' => $request->cod_amount,
+                'order_id' => $request->order_id,
+                'exchange' => $request->exchange,
+            ]
         ]);
 
         // Handle the response
-        $responseBody = $response->json();
+        $responseBody = json_decode($response->getBody(), true);
         $statusCode = $responseBody['status'];
         $messages = [
             201 => 'Inactive Client API Status',
@@ -334,23 +418,48 @@ class SaleController extends Controller
             221 => 'Invalid COD amount. It must be greater than or equal to 0'
         ];
 
-        if ($statusCode == 204) {
-            // Update the delivery status in the database
-            $sale = Sale::where('order_no', $request->order_id)->firstOrFail();
-            $customer = Customer::where('link_id', $request->recipient_id)->firstOrFail();
+            if ($statusCode == 204) {
+                // Update the delivery status in the database
+                $sale = Sale::where('order_no', $request->order_id)->firstOrFail();
+                $customer = Customer::where('link_id', $request->recipient_id)->firstOrFail();
 
-            $sale->delivery_status = 'Sent for Delivery';
-            $sale->save();
+                $sale->delivery_status = 'Sent for Delivery';
+                $sale->save();
 
-            $customer->status = 'Sent for Delivery';
-            $customer->save();
+                $customer->status = 'Sent for Delivery';
+                $customer->save();
 
-            return redirect()->route('sales.index')->with('success', 'Parcel successfully added. Waybill No: ' . $responseBody['waybill_no']);
-        } else {
-            $errorMessage = $messages[$statusCode] ?? 'Unknown error occurred';
-            return redirect()->route('sales.index')->with('error', 'Failed to add the parcel. Error: ' . $errorMessage);
+                // Send SMS based on delivery status
+                $customerName = $request->recipient_name;
+                $contactNumber = $request->recipient_contact_no;
+                $deliveryStatus = 'Sent for Delivery';
+                $message = '';
+
+                switch ($deliveryStatus) {
+                    case 'Pending':
+                        $message = "Dear $customerName, your order has been successfully placed.";
+                        break;
+                    case 'Packing':
+                        $message = "Dear $customerName, your product has been packed successfully.";
+                        break;
+                    case 'Sent for Delivery':
+                        $message = "Dear $customerName, your product has been sent for delivery.";
+                        break;
+                    default:
+                        // No SMS for other statuses
+                        break;
+                }
+
+                if ($message) {
+                    $this->sendSms($contactNumber, $message);
+                }
+
+                return redirect()->route('sales.index')->with('success', 'Parcel successfully added. Waybill No: ' . $responseBody['waybill_no']);
+            } else {
+                $errorMessage = $messages[$statusCode] ?? 'Unknown error occurred';
+                return redirect()->route('sales.index')->with('error', 'Failed to add the parcel. Error: ' . $errorMessage);
+            }
         }
-    }
 
 
 

@@ -7,13 +7,14 @@
     "require": {
         "php": "^8.1",
         "automattic/woocommerce": "^3.1",
-        "guzzlehttp/guzzle": "^7.2",
+        "guzzlehttp/guzzle": "^7.9",
         "laravel/framework": "^10.10",
         "laravel/sanctum": "^3.3",
         "laravel/tinker": "^2.8",
         "laravel/ui": "^4.2",
         "mews/purifier": "^3.4",
         "nesbot/carbon": "^2.71",
+        "notifylk/notify-php": "*@dev",
         "spatie/laravel-permission": "^6.1"
     },
     "require-dev": {
@@ -57,10 +58,15 @@
             "dont-discover": []
         }
     },
+
     "repositories": [
         {
             "type": "vcs",
             "url": "https://github.com/mewebstudio/Purifier"
+        },
+        {
+            "type": "git",
+            "url": "https://github.com/notifylk/notify-php.git"
         }
     ],
 

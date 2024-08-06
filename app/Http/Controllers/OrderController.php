@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Models\Customer;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
+use GuzzleHttp\Client;
 
 class OrderController extends Controller
 {
@@ -17,6 +18,32 @@ class OrderController extends Controller
     public function __construct(WooCommerceService $woocommerceService)
     {
         $this->woocommerceService = $woocommerceService;
+    }
+
+    private function sendSms($to, $message)
+    {
+        // Create a new GuzzleHTTP client instance
+        $client = new Client();
+
+        // Define the API endpoint and query parameters
+        $apiUrl = 'https://app.notify.lk/api/v1/send';
+        $params = [
+            'user_id' => '27674',
+            'api_key' => '8ZfgzJkzwhigCuMcWYLM',
+            'sender_id' => 'OnBeautyBar',
+            'to' => $to,
+            'message' => $message,
+        ];
+
+        // Send a POST request to the API endpoint
+        $response = $client->post($apiUrl, ['query' => $params]);
+
+        // Check if the request was successful
+        if ($response->getStatusCode() == 200) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
 
@@ -181,26 +208,31 @@ class OrderController extends Controller
             'exchange' => 'required|boolean',
         ]);
 
-        // Prepare data for the API request
-        $api_key = env('API_KEY');
-        $client_id = env('FDE_CLIENT_ID');
+        $api_key = "api66adc8929c367";
+        $client_id = "2306";
 
-        $response = Http::post('https://fardardomestic.com/api/p_request_v1.02.php', [
-            'client_id' => $client_id,
-            'api_key' => $api_key,
-            'recipient_name' => $request->recipient_name,
-            'recipient_contact_no' => $request->recipient_contact_no,
-            'recipient_address' => $request->recipient_address,
-            'recipient_city' => $request->recipient_city,
-            'parcel_type' => $request->parcel_type,
-            'parcel_description' => $request->parcel_description,
-            'cod_amount' => $request->cod_amount,
-            'order_id' => $request->order_id,
-            'exchange' => $request->exchange,
+// Create a new GuzzleHTTP client instance
+    $client = new Client();
+
+        // Send the request to the API endpoint
+        $response = $client->post('https://fardardomestic.com/api/p_request_v1.02.php', [
+            'form_params' => [
+                'client_id' => $client_id,
+                'api_key' => $api_key,
+                'recipient_name' => $request->recipient_name,
+                'recipient_contact_no' => $request->recipient_contact_no,
+                'recipient_address' => $request->recipient_address,
+                'recipient_city' => $request->recipient_city,
+                'parcel_type' => $request->parcel_type,
+                'parcel_description' => $request->parcel_description,
+                'cod_amount' => $request->cod_amount,
+                'order_id' => $request->order_id,
+                'exchange' => $request->exchange,
+            ]
         ]);
 
         // Handle the response
-        $responseBody = $response->json();
+        $responseBody = json_decode($response->getBody(), true);
         $statusCode = $responseBody['status'];
         $messages = [
             201 => 'Inactive Client API Status',
@@ -234,6 +266,31 @@ class OrderController extends Controller
 
             // // Update the WooCommerce product status
             $this->woocommerceService->updateProductStatus($order->woocommerce_id, $order->status);
+
+             // Send SMS based on delivery status
+             $customerName = $request->recipient_name;
+             $contactNumber = $request->recipient_contact_no;
+             $deliveryStatus = 'Sent for Delivery';
+             $message = '';
+
+             switch ($deliveryStatus) {
+                 case 'Pending':
+                     $message = "Dear $customerName, your order has been successfully placed.";
+                     break;
+                 case 'Packing':
+                     $message = "Dear $customerName, your product has been packed successfully.";
+                     break;
+                 case 'Sent for Delivery':
+                     $message = "Dear $customerName, your product has been sent for delivery.";
+                     break;
+                 default:
+                     // No SMS for other statuses
+                     break;
+             }
+
+             if ($message) {
+                 $this->sendSms($contactNumber, $message);
+             }
 
             return redirect()->route('orders.index')->with('success', 'Parcel successfully added. Waybill No: ' . $responseBody['waybill_no']);
         } else {
