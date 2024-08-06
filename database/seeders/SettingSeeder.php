@@ -46,15 +46,15 @@ class SettingSeeder extends Seeder
 
         // Save app settings contents
         Setting::create([
-            'company_name' => 'Extreme Coders',
-            'email' => 'info@extremecoders.us',
-            'mobile' => '0772353119',
-            'logo' => 'logo',
+            'company_name' => 'Online Beauty Bar',
+            'email' => 'onlinebeautybarpvtltd@gmail.com',
+            'mobile' => '076 060 7096',
+            'logo' => 'logos/658fhMo19U69PTgFQ50UvdDx4tirydwHFT9zS4sn.png',
             'favicon' => 'favicon',
-            'login_img' => 'login_path',
+            'login_img' => 'login_imgs/0pJwzb32FY0Ier2Lz7FViHRswaGSUS917o17oFJ9.png',
             'profile' => 'profile' ,
-            'desc' =>'Software Development Company',
-            'tags'=>'Jaffna,Software Company, Custom Laravel App',
+            'desc' =>'We are a very known company in the professional skincare industry with many years of experience and service, selling at the biggest professional skincare trade shows in the world',
+            'tags'=>'Online beauty bar, srilanka, srilankan creams',
             'solution' => 'Extreme Coders 🚀'
         ]);
     }
