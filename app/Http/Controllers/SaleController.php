@@ -350,7 +350,7 @@ class SaleController extends Controller
         $recipient_name = $sale->customer_name;
         $recipient_contact_no = $sale->contact_number;
         $recipient_address = $sale->address;
-        $recipient_city = 'nugegoda'; // Assuming this is a constant or fetched from the database
+        $recipient_city = ''; // Assuming this is a constant or fetched from the database
         $order_id = $sale->order_no;
         $cus_id = $sale->cus_id;
 

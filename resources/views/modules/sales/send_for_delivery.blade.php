@@ -32,7 +32,7 @@
                 <div class="form-group row">
                     <div class="col-md-4">
                         <label for="recipient_city">Recipient City</label>
-                        <input type="text" class="form-control" id="recipient_city" name="recipient_city" value="{{ $recipient_city }}" readonly>
+                        <input type="text" class="form-control" id="recipient_city" name="recipient_city" value="{{ $recipient_city }}" required>
                     </div>
                     <div class="col-md-4">
                         <label for="order_id">Order ID</label>
