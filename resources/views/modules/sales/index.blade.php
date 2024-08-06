@@ -4,7 +4,6 @@
 <div class="container">
     <h2>Sales</h2>
 
-
     <!-- Align the button to the right -->
     <div class="text-end mb-3">
         <a href="{{ route('sales.create') }}" class="btn btn-primary">Create Sale</a>
@@ -64,12 +63,12 @@
                                         {{ ucfirst($sale->delivery_status) }}
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#" data-status="Pending">Pending</a>
-                                        <a class="dropdown-item" href="#" data-status="Getting Ready">Getting Ready</a>
-                                        <a class="dropdown-item" href="#" data-status="Packing">Packing</a>
-                                        <a class="dropdown-item" href="#" data-status="Sent for Delivery">Sent for Delivery</a>
-                                        <a class="dropdown-item" href="#" data-status="Dispatched">Dispatched</a>
-                                        <a class="dropdown-item" href="#" data-status="Delivered">Delivered</a>
+                                        <a class="dropdown-item delivery-status-item" href="#" data-status="Pending">Pending</a>
+                                        <a class="dropdown-item delivery-status-item" href="#" data-status="Getting Ready">Getting Ready</a>
+                                        <a class="dropdown-item delivery-status-item" href="#" data-status="Packing">Packing</a>
+                                        <a class="dropdown-item delivery-status-item" href="#" data-status="Sent for Delivery">Sent for Delivery</a>
+                                        <a class="dropdown-item delivery-status-item" href="#" data-status="Dispatched">Dispatched</a>
+                                        <a class="dropdown-item delivery-status-item" href="#" data-status="Delivered">Delivered</a>
                                     </div>
                                     <input type="hidden" name="delivery_status" value="{{ $sale->delivery_status }}"> <!-- Hidden field to store the selected status -->
                                 </div>
@@ -84,8 +83,8 @@
                                         {{ ucfirst($sale->block_status) }}
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#" data-status="Active">Active</a>
-                                        <a class="dropdown-item" href="#" data-status="Block">Block</a>
+                                        <a class="dropdown-item block-status-item" href="#" data-status="Active">Active</a>
+                                        <a class="dropdown-item block-status-item" href="#" data-status="Block">Block</a>
                                     </div>
                                     <input type="hidden" name="block_status" id="block_status" value="{{ $sale->block_status }}">
                                 </div>
@@ -116,7 +115,7 @@ $(document).ready(function() {
     });
 
     // Handle dropdown item click for block status
-    $('.dropdown-item').on('click', function(e) {
+    $('.block-status-item').on('click', function(e) {
         e.preventDefault();
         var status = $(this).data('status');
         var form = $(this).closest('form');
@@ -127,7 +126,7 @@ $(document).ready(function() {
     });
 
     // Handle dropdown item click for delivery status
-    $('.dropdown-item').on('click', function(e) {
+    $('.delivery-status-item').on('click', function(e) {
         e.preventDefault();
         var status = $(this).data('status');
         var form = $(this).closest('form');
