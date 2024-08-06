@@ -7,8 +7,8 @@
    @import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&amp;display=swap");
 
    :root {
-       --bs-extreme: #BD1701;
-       --bs-extreme-hover : #ED523D;
+       --bs-extreme: #ff0000;
+       --bs-extreme-hover : #ed523d;
        --bs-blue: var(--bs-extreme);
        --bs-indigo: #6610f2;
        --bs-purple: #6f42c1;
@@ -6468,7 +6468,7 @@
        width: 1em;
        height: 1em;
        padding: 0.25em 0.25em;
-       color: #000000;
+       color: #ff0000;
        background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='%23000000' viewBox='0 0 16 16'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e") center/1em auto no-repeat;
        border: 0;
        border-radius: 10px;
@@ -6476,7 +6476,7 @@
    }
 
    .btn-close:hover {
-       color: #000000;
+       color: #ff0000;
        text-decoration: none;
        opacity: 0.75;
    }
@@ -6691,7 +6691,7 @@
 
    .modal-backdrop {
        --bs-backdrop-zindex: 1050;
-       --bs-backdrop-bg: #000000;
+       --bs-backdrop-bg: #ff0000;
        --bs-backdrop-opacity: 0.5;
        position: fixed;
        top: 0;
@@ -6951,7 +6951,7 @@
        --bs-tooltip-margin: 0;
        --bs-tooltip-font-size: 0.76563rem;
        --bs-tooltip-color: #ffffff;
-       --bs-tooltip-bg: #000000;
+       --bs-tooltip-bg: #ff0000;
        --bs-tooltip-border-radius: 10px;
        --bs-tooltip-opacity: 0.9;
        --bs-tooltip-arrow-width: 0.8rem;
@@ -7464,11 +7464,11 @@
    }
 
    .carousel-dark .carousel-indicators [data-bs-target] {
-       background-color: #000000;
+       background-color: #ff0000;
    }
 
    .carousel-dark .carousel-caption {
-       color: #000000;
+       color: #ff0000;
    }
 
    .spinner-grow,
@@ -8277,8 +8277,8 @@
    }
 
    .placeholder-wave {
-       -webkit-mask-image: linear-gradient(130deg, #000000 55%, rgba(0, 0, 0, 0.8) 75%, #000000 95%);
-       mask-image: linear-gradient(130deg, #000000 55%, rgba(0, 0, 0, 0.8) 75%, #000000 95%);
+       -webkit-mask-image: linear-gradient(130deg, #ff0000 55%, rgba(0, 0, 0, 0.8) 75%, #ff0000 95%);
+       mask-image: linear-gradient(130deg, #ff0000 55%, rgba(0, 0, 0, 0.8) 75%, #ff0000 95%);
        -webkit-mask-size: 200% 100%;
        mask-size: 200% 100%;
        -webkit-animation: placeholder-wave 2s linear infinite;
@@ -14676,7 +14676,7 @@
        top: 0;
        left: 0;
        z-index: 999999;
-       background: #000000;
+       background: #ff0000;
        width: 100%;
        height: 100%;
        text-align: center;

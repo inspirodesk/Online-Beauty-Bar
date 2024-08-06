@@ -4,16 +4,21 @@
 <div class="container">
     <h2>Sales</h2>
 
-    @if (session('success'))
-        <div class="alert alert-success">
-            {{ session('success') }}
-        </div>
-    @endif
 
     <!-- Align the button to the right -->
     <div class="text-end mb-3">
         <a href="{{ route('sales.create') }}" class="btn btn-primary">Create Sale</a>
     </div>
+    @if (session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
+    @if (session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+    @endif
     <table id="sales-table" class="table table-bordered">
         <thead>
             <tr>
@@ -128,7 +133,7 @@ $(document).ready(function() {
         var form = $(this).closest('form');
 
         // Update hidden field with selected status
-        form.find('input[name="block_status"]').val(status);
+        form.find('input[name="delivery_status"]').val(status);
         form.submit();
     });
 });

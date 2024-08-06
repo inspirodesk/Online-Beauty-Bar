@@ -63,7 +63,7 @@
             "url": "https://github.com/mewebstudio/Purifier"
         }
     ],
-    
+
     "config": {
         "optimize-autoloader": true,
         "preferred-install": "dist",
@@ -73,6 +73,9 @@
             "php-http/discovery": true
         }
     },
+    "files": [
+        "app/Helpers/ConfigHelper.php"
+    ],
     "minimum-stability": "stable",
     "prefer-stable": true
 }

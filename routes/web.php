@@ -12,6 +12,7 @@ use App\Http\Controllers\SaleController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\NoteController;
 use App\Http\Controllers\PrintController;
+use App\Http\Controllers\ListProductController;
 
 /*
 |--------------------------------------------------------------------------
@@ -50,4 +51,11 @@ Route::get('notes/search', [NoteController::class, 'search'])->name('notes.searc
 Route::patch('sales/{id}/block', [SaleController::class, 'block'])->name('sales.block');
 Route::get('/block-list', [SaleController::class, 'blockList'])->name('sales.blockList');
 Route::delete('/sales/{id}', [SaleController::class, 'deleteUser'])->name('sales.deleteUser');
-
+Route::get('sales/send-for-delivery/{id}', [SaleController::class, 'sendForDelivery'])->name('sales.sendForDelivery');
+Route::post('sales/process-delivery-request', [SaleController::class, 'processDeliveryRequest'])->name('sales.processDeliveryRequest');
+Route::get('/api-settings', [SettingController::class, 'showAPIForm'])->name('settings.apiform');
+Route::post('/api-settings/update', [SettingController::class, 'updateAPIs'])->name('settings.updateapi');
+Route::get('orders/send-for-delivery/{id}', [OrderController::class, 'sendForDelivery'])->name('orders.sendForDelivery');
+Route::post('orders/process-delivery-request', [OrderController::class, 'processDeliveryRequest'])->name('orders.processDeliveryRequest');
+Route::get('sync-woocommerce-products', [ListProductController::class, 'syncWooCommerceProducts']);
+Route::get('list-products', [ListProductController::class, 'getProducts']);

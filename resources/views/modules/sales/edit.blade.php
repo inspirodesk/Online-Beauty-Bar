@@ -22,7 +22,7 @@
                 <div class="form-group">
                     <label for="customer_name">Customer Name:</label>
                     <input type="text" class="form-control" id="customer_name" name="customer_name" value="{{ old('customer_name', $sale->customer_name) }}" required>
-                    <input type="hidden" class="form-control" id="cus_id" name="cus_id" value="{{ old('cus_id', $sale->cus_id) }}" required>
+                    <input type="text" class="form-control" id="cus_id" name="cus_id" value="{{ old('cus_id', $sale->cus_id) }}" required>
                 </div>
             </div>
             <div class="col-3">
@@ -80,18 +80,16 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-3">
+            <div class="col-3" style="display:none">
                 <div class="form-group">
                     <label for="delivery_status">Delivery Status:</label>
                     <select class="form-control" id="delivery_status" name="delivery_status">
-                        <option value="pending" {{ old('delivery_status', $sale->delivery_status) == 'pending' ? 'selected' : '' }}>Pending</option>
-                        <option value="processing" {{ old('delivery_status', $sale->delivery_status) == 'processing' ? 'selected' : '' }}>Processing</option>
-                        <option value="on-hold" {{ old('delivery_status', $sale->delivery_status) == 'on-hold' ? 'selected' : '' }}>On Hold</option>
-                        <option value="completed" {{ old('delivery_status', $sale->delivery_status) == 'completed' ? 'selected' : '' }}>Completed</option>
-                        <option value="cancelled" {{ old('delivery_status', $sale->delivery_status) == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
-                        <option value="refunded" {{ old('delivery_status', $sale->delivery_status) == 'refunded' ? 'selected' : '' }}>Refunded</option>
-                        <option value="failed" {{ old('delivery_status', $sale->delivery_status) == 'failed' ? 'selected' : '' }}>Failed</option>
-                        <option value="trash" {{ old('delivery_status', $sale->delivery_status) == 'trash' ? 'selected' : '' }}>Trash</option>
+                        <option value="Pending" {{ old('delivery_status', $sale->delivery_status) == 'Pending' ? 'selected' : '' }}>Pending</option>
+                        <option value="Getting Ready" {{ old('delivery_status', $sale->delivery_status) == 'Getting Ready' ? 'selected' : '' }}>Getting Ready</option>
+                        <option value="Packing" {{ old('delivery_status', $sale->delivery_status) == 'Packing' ? 'selected' : '' }}>Packing</option>
+                        <option value="Sent for Delivery" {{ old('delivery_status', $sale->delivery_status) == 'Sent for Delivery' ? 'selected' : '' }}>Sent for Delivery</option>
+                        <option value="Dispatched" {{ old('delivery_status', $sale->delivery_status) == 'Dispatched' ? 'selected' : '' }}>Dispatched</option>
+                        <option value="Delivered" {{ old('delivery_status', $sale->delivery_status) == 'Delivered' ? 'selected' : '' }}>Delivered</option>
                     </select>
                 </div>
             </div>
@@ -99,9 +97,6 @@
                 <div class="form-group">
                     <label for="attachment">Attachment:</label>
                     <input type="file" class="form-control" id="attachment" name="attachment">
-                    @if ($sale->attachment)
-                        <a href="{{ asset('storage/' . $sale->attachment) }}" target="_blank">View Current Attachment</a>
-                    @endif
                 </div>
             </div>
         </div>
@@ -110,39 +105,38 @@
             <div class="col-8">
                 <div id="products-container">
                     @foreach ($sale->products as $index => $product)
-                        <div class="row product-row">
-                            <div class="col-3">
-                                <div class="form-group">
-                                    <label for="product_name_{{ $index }}">Product Name:</label>
-                                    <input type="text" class="form-control" name="products[{{ $index }}][name]" value="{{ $product->name }}" required>
-                                </div>
-                            </div>
-                            <div class="col-3">
-                                <div class="form-group">
-                                    <label for="product_amount_{{ $index }}">Product Amount:</label>
-                                    <input type="number" class="form-control" name="products[{{ $index }}][amount]" value="{{ $product->amount }}" required>
-                                </div>
-                            </div>
-                            <div class="col-3">
-                                <div class="form-group">
-                                    <label for="product_quantity_{{ $index }}">Quantity:</label>
-                                    <input type="number" class="form-control" name="products[{{ $index }}][quantity]" value="{{ $product->quantity }}" required>
-                                </div>
-                            </div>
-                            <div class="col-3">
-                                <button style="margin-top: 30px" type="button" class="btn btn-sm btn-danger remove-product-btn">Remove</button>
+                    <div class="row product-row">
+                        <div class="col-3">
+                            <div class="form-group">
+                                <label for="product_name_{{ $index + 1 }}">Product Name:</label>
+                                <input type="text" class="form-control product-name" name="products[{{ $index }}][name]" value="{{ old('products.' . $index . '.name', $product->name) }}" required>
                             </div>
                         </div>
-                    @endforeach
-                    <div class="row product-row">
-
+                        <div class="col-3">
+                            <div class="form-group">
+                                <label for="product_quantity_{{ $index + 1 }}">Product Quantity:</label>
+                                <input type="number" class="form-control" name="products[{{ $index }}][quantity]" value="{{ old('products.' . $index . '.quantity', $product->quantity) }}" required>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="form-group">
+                                <label for="product_amount_{{ $index + 1 }}">Product Amount:</label>
+                                <input type="number" class="form-control product-amount" name="products[{{ $index }}][amount]" value="{{ old('products.' . $index . '.amount', $product->amount) }}" required>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <button style="margin-top: 30px" type="button" class="btn btn-sm btn-danger remove-product-btn">Remove</button>
+                        </div>
                     </div>
+                    @endforeach
                 </div>
-                <div class="col-4">
-                    <button style="margin-top: 30px" type="button" id="add-product-btn" class="btn btn-sm btn-danger">Add New Product</button>
-                </div>
+                <button style="margin-top: 30px" type="button" id="add-product-btn" class="btn btn-sm btn-primary">Add New Product</button>
             </div>
             <div class="col-4">
+                <div class="form-group">
+                    <label for="delivery_amount">Delivery Amount:</label>
+                    <input type="number" class="form-control" id="delivery_amount" name="delivery" value="{{ old('delivery', $sale->delivery) }}" step="0.01">
+                </div>
                 <div class="form-group">
                     <label for="discount">Discount:</label>
                     <input type="number" class="form-control" id="discount" name="discount" value="{{ old('discount', $sale->discount) }}" step="0.01">
@@ -156,7 +150,7 @@
                     <input type="number" class="form-control" id="final_total" name="final_total" value="{{ old('final_total', $sale->final_total) }}" readonly>
                 </div>
                 <div class="form-group">
-                    <button type="submit" class="btn btn-sm btn-primary">Update</button>
+                    <button type="submit" class="btn btn-sm btn-primary">Submit</button>
                 </div>
             </div>
         </div>
@@ -165,24 +159,18 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    let productCount = {{ $sale->products->count() }};
+    let productCount = {{ count($sale->products) }};
 
-    function calculateTotal() {
-        let subtotal = 0;
-
-        document.querySelectorAll('input[name$="[amount]"]').forEach(function(input) {
-            const amount = parseFloat(input.value) || 0;
-            const quantityInput = input.closest('.product-row').querySelector('input[name$="[quantity]"]');
-            const quantity = parseFloat(quantityInput.value) || 0;
-            subtotal += amount * quantity;
-        });
-
-        const discount = parseFloat(document.getElementById('discount').value) || 0;
-        const finalTotal = subtotal - discount;
-
-        document.getElementById('subtotal').value = subtotal.toFixed(2);
-        document.getElementById('final_total').value = finalTotal.toFixed(2);
-    }
+    // Fetch products for auto-complete
+    let products = [];
+    $.ajax({
+        url: '{{ url("list-products") }}',
+        method: 'GET',
+        success: function(data) {
+            products = data;
+            initializeAutocomplete();
+        }
+    });
 
     document.getElementById('add-product-btn').addEventListener('click', function() {
         productCount++;
@@ -194,19 +182,19 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="col-3">
                 <div class="form-group">
                     <label for="product_name_${productCount}">Product Name:</label>
-                    <input type="text" class="form-control" name="products[${productCount - 1}][name]" required>
+                    <input type="text" class="form-control product-name" name="products[${productCount - 1}][name]" required>
+                </div>
+            </div>
+            <div class="col-3">
+                <div class="form-group">
+                    <label for="product_quantity_${productCount}">Product Quantity:</label>
+                    <input type="number" class="form-control" name="products[${productCount - 1}][quantity]" required>
                 </div>
             </div>
             <div class="col-3">
                 <div class="form-group">
                     <label for="product_amount_${productCount}">Product Amount:</label>
-                    <input type="number" class="form-control" name="products[${productCount - 1}][amount]" required>
-                </div>
-            </div>
-            <div class="col-3">
-                <div class="form-group">
-                    <label for="product_quantity_${productCount}">Quantity:</label>
-                    <input type="number" class="form-control" name="products[${productCount - 1}][quantity]" required>
+                    <input type="number" class="form-control product-amount" name="products[${productCount - 1}][amount]" required>
                 </div>
             </div>
             <div class="col-3">
@@ -215,6 +203,7 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
 
         container.appendChild(newRow);
+        initializeAutocomplete();
     });
 
     document.getElementById('products-container').addEventListener('click', function(event) {
@@ -225,7 +214,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     document.getElementById('products-container').addEventListener('input', function(event) {
-        if (event.target.matches('input[name$="[amount]"], input[name$="[quantity]"]')) {
+        if (event.target.name.startsWith('products') && event.target.type === 'number') {
             calculateTotal();
         }
     });
@@ -234,10 +223,39 @@ document.addEventListener('DOMContentLoaded', function() {
         calculateTotal();
     });
 
-    // Initial calculation
-    calculateTotal();
+    document.getElementById('delivery_amount').addEventListener('input', function() {
+        calculateTotal();
+    });
+
+    function calculateTotal() {
+        let subtotal = 0;
+        document.querySelectorAll('.product-row').forEach(function(row) {
+            const quantity = parseFloat(row.querySelector('input[name$="[quantity]"]').value) || 0;
+            const amount = parseFloat(row.querySelector('input[name$="[amount]"]').value) || 0;
+            subtotal += quantity * amount;
+        });
+
+        const discount = parseFloat(document.getElementById('discount').value) || 0;
+        const deliveryAmount = parseFloat(document.getElementById('delivery_amount').value) || 0;
+        const finalTotal = subtotal - discount + deliveryAmount;
+
+        document.getElementById('subtotal').value = subtotal.toFixed(2);
+        document.getElementById('final_total').value = finalTotal.toFixed(2);
+    }
+
+    function initializeAutocomplete() {
+        $('.product-name').autocomplete({
+            source: products.map(product => product.name),
+            select: function(event, ui) {
+                const selectedProduct = products.find(product => product.name === ui.item.value);
+                const amountField = $(this).closest('.product-row').find('.product-amount');
+                amountField.val(selectedProduct.amount);
+                calculateTotal();
+            }
+        });
+    }
+
+    initializeAutocomplete();
 });
-
-
 </script>
 @endsection

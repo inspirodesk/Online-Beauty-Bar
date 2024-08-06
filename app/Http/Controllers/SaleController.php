@@ -8,6 +8,7 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Http;
 
 class SaleController extends Controller
 {
@@ -50,6 +51,7 @@ class SaleController extends Controller
             'status' => 'required|string|max:50',
             'delivery_status' => 'nullable|string|max:50',
             'discount' => 'nullable|numeric|min:0',
+            'delivery' => 'nullable|numeric|min:0',
             'subtotal' => 'required|numeric|min:0',
             'final_total' => 'required|numeric|min:0',
             'attachment' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
@@ -132,6 +134,7 @@ class SaleController extends Controller
             'status' => 'required|string|max:50',
             'delivery_status' => 'nullable|string|max:50',
             'discount' => 'nullable|numeric|min:0',
+            'delivery' => 'nullable|numeric|min:0',
             'subtotal' => 'required|numeric|min:0',
             'final_total' => 'required|numeric|min:0',
             'attachment' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
@@ -204,23 +207,26 @@ class SaleController extends Controller
             'delivery_status' => 'required|string|in:Pending,Getting Ready,Packing,Sent for Delivery,Dispatched,Delivered',
         ]);
 
-        // Find sale by ID
-        $sale = Sale::findOrFail($id);
-
-        // Find customer by ID
-        $customer = Customer::where('link_id', $sale->cus_id)->firstOrFail();
-
-        // Log status for debugging
-        \Log::info('Updating sale status:', ['sale_id' => $id, 'status' => $request->input('delivery_status')]);
-
-        // Update sale status
-        $sale->delivery_status = $request->input('delivery_status');
-        $sale->save();
-
-        $customer->status = $request->input('delivery_status');
-        $customer->save();
 
 
+        // Redirect to the send for delivery form if status is "Sent for Delivery"
+        if ($request->input('delivery_status') === 'Sent for Delivery') {
+            return redirect()->route('sales.sendForDelivery', $id);
+        }
+        else
+        {
+            // Find sale by ID
+            $sale = Sale::findOrFail($id);
+
+            // Update sale status
+            $sale->delivery_status = $request->input('delivery_status');
+            $sale->save();
+
+            // Update customer status
+            $customer = Customer::where('link_id', $sale->cus_id)->firstOrFail();
+            $customer->status = $request->input('delivery_status');
+            $customer->save();
+        }
 
         // Redirect with success message
         return redirect()->route('sales.index')->with('success', 'Order status updated successfully.');
@@ -255,6 +261,99 @@ class SaleController extends Controller
 
         return back()->with('success', 'Block sale deleted successfully.');
     }
+
+
+    public function sendForDelivery($id)
+    {
+        // Fetch sale details
+        $sale = Sale::findOrFail($id);
+
+        // Fetch recipient details
+        $recipient_name = $sale->customer_name;
+        $recipient_contact_no = $sale->contact_number;
+        $recipient_address = $sale->address;
+        $recipient_city = 'nugegoda'; // Assuming this is a constant or fetched from the database
+        $order_id = $sale->order_no;
+        $cus_id = $sale->cus_id;
+
+        return view('modules.sales.send_for_delivery', compact('cus_id','recipient_name', 'recipient_contact_no', 'recipient_address', 'recipient_city', 'order_id'));
+    }
+
+    public function processDeliveryRequest(Request $request)
+    {
+        // Validate request
+        $request->validate([
+            'recipient_name' => 'required|string|max:255',
+            'recipient_id' => 'required|string|max:255',
+            'recipient_contact_no' => 'required|string|max:20',
+            'recipient_address' => 'required|string|max:255',
+            'recipient_city' => 'required|string|max:50',
+            'order_id' => 'required|string|max:50',
+            'parcel_type' => 'required|integer|min:0|max:30',
+            'cod_amount' => 'required|numeric|min:0',
+            'exchange' => 'required|boolean',
+        ]);
+
+        // Prepare data for the API request
+        $api_key = env('API_KEY');
+        $client_id = env('FDE_CLIENT_ID');
+
+        $response = Http::post('https://fardardomestic.com/api/p_request_v1.02.php', [
+            'client_id' => $client_id,
+            'api_key' => $api_key,
+            'recipient_name' => $request->recipient_name,
+            'recipient_contact_no' => $request->recipient_contact_no,
+            'recipient_address' => $request->recipient_address,
+            'recipient_city' => $request->recipient_city,
+            'parcel_type' => $request->parcel_type,
+            'parcel_description' => $request->parcel_description,
+            'cod_amount' => $request->cod_amount,
+            'order_id' => $request->order_id,
+            'exchange' => $request->exchange,
+        ]);
+
+        // Handle the response
+        $responseBody = $response->json();
+        $statusCode = $responseBody['status'];
+        $messages = [
+            201 => 'Inactive Client API Status',
+            202 => 'Invalid Apikey',
+            203 => 'Not Added the Parcel',
+            204 => 'Successfully Added the Parcel',
+            205 => 'Recipient Name Is Empty',
+            206 => 'Recipient Contact Number Is Empty',
+            207 => 'Recipient Address Is Empty',
+            208 => 'Recipient Contact Number is Invalid',
+            209 => 'Recipient City Is Empty',
+            210 => 'Parcel Type Is Empty',
+            211 => 'Parcel Type Is Not a Number',
+            212 => 'Parcel Description Is Empty',
+            218 => 'Recipient City Is Invalid',
+            219 => 'Parcel Type Is Not valid',
+            220 => 'COD amount Is Not a Number',
+            221 => 'Invalid COD amount. It must be greater than or equal to 0'
+        ];
+
+        if ($statusCode == 204) {
+            // Update the delivery status in the database
+            $sale = Sale::where('order_no', $request->order_id)->firstOrFail();
+            $customer = Customer::where('link_id', $request->recipient_id)->firstOrFail();
+
+            $sale->delivery_status = 'Sent for Delivery';
+            $sale->save();
+
+            $customer->status = 'Sent for Delivery';
+            $customer->save();
+
+            return redirect()->route('sales.index')->with('success', 'Parcel successfully added. Waybill No: ' . $responseBody['waybill_no']);
+        } else {
+            $errorMessage = $messages[$statusCode] ?? 'Unknown error occurred';
+            return redirect()->route('sales.index')->with('error', 'Failed to add the parcel. Error: ' . $errorMessage);
+        }
+    }
+
+
+
 
 
 

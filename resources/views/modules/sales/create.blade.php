@@ -77,12 +77,12 @@
                 </div>
             </div>
         </div>
-        <div class="row">
+        <div class="row" style="display: none">
             <div class="col-3">
                 <div class="form-group">
                     <label for="delivery_status">Delivery Status:</label>
                     <select class="form-control" id="delivery_status" name="delivery_status">
-                        <option value="Pending">Pending</option>
+                        <option value="Pending" selected>Pending</option>
                         <option value="Getting Ready">Getting Ready</option>
                         <option value="Packing">Packing</option>
                         <option value="Sent for Delivery">Sent for Delivery</option>
@@ -106,7 +106,7 @@
                         <div class="col-3">
                             <div class="form-group">
                                 <label for="product_name_1">Product Name:</label>
-                                <input type="text" class="form-control" name="products[0][name]" required>
+                                <input type="text" class="form-control product-name" name="products[0][name]" required>
                             </div>
                         </div>
                         <div class="col-3">
@@ -118,7 +118,7 @@
                         <div class="col-3">
                             <div class="form-group">
                                 <label for="product_amount_1">Product Amount:</label>
-                                <input type="number" class="form-control" name="products[0][amount]" required>
+                                <input type="number" class="form-control product-amount" name="products[0][amount]" required>
                             </div>
                         </div>
                         <div class="col-3">
@@ -131,6 +131,10 @@
 
             </div>
             <div class="col-4">
+                <div class="form-group">
+                    <label for="delivery_amount">Delivery Amount:</label>
+                    <input type="number" class="form-control" id="delivery_amount" name="delivery" value="{{ old('delivery_amount') }}" step="0.01">
+                </div>
                 <div class="form-group">
                     <label for="discount">Discount:</label>
                     <input type="number" class="form-control" id="discount" name="discount" value="{{ old('discount') }}" step="0.01">
@@ -155,6 +159,17 @@
 document.addEventListener('DOMContentLoaded', function() {
     let productCount = 1;
 
+    // Fetch products for auto-complete
+    let products = [];
+    $.ajax({
+        url: '{{ url("list-products") }}',
+        method: 'GET',
+        success: function(data) {
+            products = data;
+            initializeAutocomplete();
+        }
+    });
+
     document.getElementById('add-product-btn').addEventListener('click', function() {
         productCount++;
         const container = document.getElementById('products-container');
@@ -165,7 +180,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="col-3">
                 <div class="form-group">
                     <label for="product_name_${productCount}">Product Name:</label>
-                    <input type="text" class="form-control" name="products[${productCount - 1}][name]" required>
+                    <input type="text" class="form-control product-name" name="products[${productCount - 1}][name]" required>
                 </div>
             </div>
             <div class="col-3">
@@ -177,7 +192,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="col-3">
                 <div class="form-group">
                     <label for="product_amount_${productCount}">Product Amount:</label>
-                    <input type="number" class="form-control" name="products[${productCount - 1}][amount]" required>
+                    <input type="number" class="form-control product-amount" name="products[${productCount - 1}][amount]" required>
                 </div>
             </div>
             <div class="col-3">
@@ -186,6 +201,7 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
 
         container.appendChild(newRow);
+        initializeAutocomplete();
     });
 
     document.getElementById('products-container').addEventListener('click', function(event) {
@@ -205,6 +221,10 @@ document.addEventListener('DOMContentLoaded', function() {
         calculateTotal();
     });
 
+    document.getElementById('delivery_amount').addEventListener('input', function() {
+        calculateTotal();
+    });
+
     function calculateTotal() {
         let subtotal = 0;
         document.querySelectorAll('.product-row').forEach(function(row) {
@@ -214,11 +234,26 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         const discount = parseFloat(document.getElementById('discount').value) || 0;
-        const finalTotal = subtotal - discount;
+        const deliveryAmount = parseFloat(document.getElementById('delivery_amount').value) || 0;
+        const finalTotal = subtotal - discount + deliveryAmount;
 
         document.getElementById('subtotal').value = subtotal.toFixed(2);
         document.getElementById('final_total').value = finalTotal.toFixed(2);
     }
+
+    function initializeAutocomplete() {
+        $('.product-name').autocomplete({
+            source: products.map(product => product.name),
+            select: function(event, ui) {
+                const selectedProduct = products.find(product => product.name === ui.item.value);
+                const amountField = $(this).closest('.product-row').find('.product-amount');
+                amountField.val(selectedProduct.amount);
+                calculateTotal();
+            }
+        });
+    }
+
+    initializeAutocomplete();
 });
 </script>
 @endsection

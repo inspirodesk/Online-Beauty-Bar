@@ -44,4 +44,10 @@ class WooCommerceService
             throw $e;
         }
     }
+
+    // New method to get WooCommerce products
+    public function getProducts()
+    {
+        return $this->woocommerce->get('products');
+    }
 }

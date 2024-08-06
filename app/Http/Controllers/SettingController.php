@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Setting; // Assuming 'Setting' is your model name
 use App\Http\Requests\UpdateSettingRequest;
+use Illuminate\Support\Facades\Artisan;
 
 class SettingController extends Controller
 {
@@ -96,6 +97,60 @@ class SettingController extends Controller
         $setting = Setting::findOrFail($id);
         $setting->delete();
         return redirect()->route('settings.index');
+    }
+
+    public function showAPIForm()
+    {
+        // Get current settings from the .env file
+        $settings = [
+            'woocommerce_url' => env('WOOCOMMERCE_URL'),
+            'woocommerce_consumer_key' => env('WOOCOMMERCE_CONSUMER_KEY'),
+            'woocommerce_consumer_secret' => env('WOOCOMMERCE_CONSUMER_SECRET'),
+            'api_key' => env('API_KEY'),
+            'fde_client_id' => env('FDE_CLIENT_ID'),
+        ];
+
+        return view('settings.api', compact('settings'));
+    }
+
+    public function updateAPIs(Request $request)
+    {
+        // Validate the incoming request data
+        $request->validate([
+            'woocommerce_url' => 'required|url',
+            'woocommerce_consumer_key' => 'required|string',
+            'woocommerce_consumer_secret' => 'required|string',
+            'api_key' => 'required|string',
+            'fde_client_id' => 'required|string',
+        ]);
+
+        // Update the .env file
+        $settings = [
+            'WOOCOMMERCE_URL' => $request->input('woocommerce_url'),
+            'WOOCOMMERCE_CONSUMER_KEY' => $request->input('woocommerce_consumer_key'),
+            'WOOCOMMERCE_CONSUMER_SECRET' => $request->input('woocommerce_consumer_secret'),
+            'API_KEY' => $request->input('api_key'),
+            'FDE_CLIENT_ID' => $request->input('fde_client_id'),
+        ];
+
+        $this->updateEnv($settings);
+
+        return redirect('/api-settings')->with('success', 'Settings updated successfully.');
+    }
+
+    protected function updateEnv(array $settings)
+    {
+        $path = base_path('.env');
+        $envContent = file_get_contents($path);
+
+        foreach ($settings as $key => $value) {
+            $envContent = preg_replace('/^' . $key . '=.*/m', $key . '=' . $value, $envContent);
+        }
+
+        file_put_contents($path, $envContent);
+
+        // Clear config cache
+        Artisan::call('config:cache');
     }
 }
 

@@ -1,5 +1,5 @@
  <!-- { navigation menu } start -->
- <aside class="app-sidebar app-light-sidebar">
+ <aside class="app-sidebar app-light-sidebar" style="background-color: rgb(0, 0, 0);color:white">
    <div class="app-navbar-wrapper">
      <div class="brand-link brand-logo">
        <a href="#" class="b-brand">
@@ -75,6 +75,25 @@
                 </li>
             </ul>
          </li>
+         <li class="nav-item nav-hasmenu {{ Request::is('/sync-woocommerce-products') || Request::is('/sync-orders')  ? 'active nav-provoke' : '' }}">
+            <a href="#!" class="nav-link">
+              <span class="nav-icon">
+                <i class="ti ti-layout-2"></i>
+              </span>
+              <span class="nav-text">Woo Sync</span>
+              <span class="nav-arrow">
+                <i data-feather="chevron-right"></i>
+              </span>
+            </a>
+            <ul class="nav-submenu">
+              <li class="nav-item {{ Request::is('/sync-orders')  ? 'active nav-provoke' : '' }}">
+                <a class="nav-link" target="_blank" href="{{ url('/sync-orders') }}">Orders Sync</a>
+              </li>
+              <li class="nav-item {{ Request::is('/sync-woocommerce-products')  ? 'active nav-provoke' : '' }}">
+                <a class="nav-link" target="_blank" href="{{ url('/sync-woocommerce-products') }}">Products Sync</a>
+              </li>
+            </ul>
+          </li>
         <li class="nav-item">
             <a href="/prints" target="_blank" class="nav-link"><span class="nav-icon"><i class="ti ti-layout-2"></i></span><span class="nav-text">Prints</span></a>
         </li>
@@ -101,7 +120,7 @@
              @endcanany
            </ul>
          </li>
-         <li class="nav-item nav-hasmenu">
+         <li class="nav-item nav-hasmenu {{ Request::is('settings/*')  ? 'active nav-provoke' : '' }}">
            <a href="#!" class="nav-link">
              <span class="nav-icon">
                <i class="ti ti-layout-2"></i>
@@ -112,11 +131,11 @@
              </span>
            </a>
            <ul class="nav-submenu">
-             <li class="nav-item">
+             <li class="nav-item {{ Request::is('/settings')  ? 'active nav-provoke' : '' }}">
                <a class="nav-link" href="{{ url('/settings') }}">Genarel Setting</a>
              </li>
-             <li class="nav-item">
-               <a class="nav-link" href="{{ url('/api') }}">REST API</a>
+             <li class="nav-item {{ Request::is('api-settings/*')  ? 'active nav-provoke' : '' }}">
+               <a class="nav-link" href="{{ url('/api-settings') }}">API</a>
              </li>
            </ul>
          </li>

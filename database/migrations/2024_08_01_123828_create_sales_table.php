@@ -24,6 +24,7 @@ return new class extends Migration
             $table->string('status');
             $table->string('delivery_status')->nullable();
             $table->decimal('discount', 8, 2)->nullable();
+            $table->decimal('delivery', 8, 2)->nullable();
             $table->decimal('subtotal', 8, 2)->default(0);
             $table->decimal('final_total', 8, 2)->default(0);
             $table->string('attachment')->nullable();

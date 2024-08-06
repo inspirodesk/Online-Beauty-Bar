@@ -122,6 +122,3 @@ $(document).ready(function() {
 </script>
 
 @endsection
-
-ck_c96608daa0d2cecfa73918bfa00d5e277549667e
-cs_700dbb85ac64aa70f0bc58b021ac6ba3967662cb
