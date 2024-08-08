@@ -13,18 +13,39 @@ use GuzzleHttp\Client;
 
 class SaleController extends Controller
 {
+    public function formatSriLankanMobileNumber($inputNumber)
+    {
+        // Remove any non-numeric characters
+        $number = preg_replace('/\D/', '', $inputNumber);
+
+        // Check if the number already starts with 94
+        if (strpos($number, '94') === 0) {
+            // If it does, make sure it's 11 digits long
+            return substr($number, 0, 11);
+        }
+
+        // Remove any leading zeros
+        $number = ltrim($number, '0');
+
+        // Prepend 94 to make it the standard format
+        $formattedNumber = '94' . $number;
+
+        // Ensure the result is 11 digits long
+        return substr($formattedNumber, 0, 11);
+    }
+
     private function sendSms($to, $message)
     {
         // Create a new GuzzleHTTP client instance
         $client = new Client();
-
+        $formattedNumber = $this->formatSriLankanMobileNumber($to);
         // Define the API endpoint and query parameters
         $apiUrl = 'https://app.notify.lk/api/v1/send';
         $params = [
             'user_id' => '27674',
             'api_key' => '8ZfgzJkzwhigCuMcWYLM',
             'sender_id' => 'OnBeautyBar',
-            'to' => $to,
+            'to' => $formattedNumber,
             'message' => $message,
         ];
 
@@ -56,22 +77,25 @@ class SaleController extends Controller
     // Show the form for creating a new resource
     public function create()
     {
-        return view('modules.sales.create');
+        do {
+            $uniqueId = Str::upper(Str::random(8));
+            $exists = Sale::where('cus_id', $uniqueId)->exists();
+        } while ($exists);
+
+        return view('modules.sales.create',compact('uniqueId'));
     }
 
     // Store a newly created resource in storage
     public function store(Request $request)
     {
         // Generate a unique ID
-        do {
-            $uniqueId = Str::upper(Str::random(8));
-            $exists = Sale::where('cus_id', $uniqueId)->exists();
-        } while ($exists);
+
 
         $request->validate([
             'customer_name' => 'required|string|max:255',
+            'cus_id' => 'required|string|max:255',
             'address' => 'required|string|max:255',
-            'contact_number' => 'required|string|max:20',
+            'contact_number' => 'required|srilankan-mobilecode',
             'whatsapp_number' => 'nullable|string|max:20',
             'order_no' => 'required|string|max:50',
             'track_no' => 'required|string|max:50',
@@ -89,6 +113,7 @@ class SaleController extends Controller
             'products.*.quantity' => 'required|numeric|min:0',
         ]);
 
+
         // Check if the customer exists and their block status
         $existingCustomer = Sale::where('contact_number', $request->contact_number)->first();
 
@@ -101,14 +126,16 @@ class SaleController extends Controller
             $customer = new Customer();
             $customer->name = $request->customer_name;
             $customer->status = $request->delivery_status;
-            $customer->link_id = $uniqueId;
+            $customer->link_id = $request->cus_id;
             $customer->address = $request->address;
             $customer->phone_no = $request->contact_number;
+            $customer->payment_status = $request->status;
+            $customer->payment = $request->final_total;
             $customer->save();
         } else {
             // If customer exists, use the existing customer
             $customer = $existingCustomer;
-            $uniqueId = $customer->link_id;
+            $uniqueId = $request->cus_id;
         }
 
         // Create a new sale
@@ -119,7 +146,7 @@ class SaleController extends Controller
             $sale->attachment = $path;
         }
 
-        $sale->cus_id = $uniqueId;
+        $sale->cus_id = $request->cus_id;
         $sale->block_status = 'Active';
         $sale->save();
 
@@ -136,13 +163,13 @@ class SaleController extends Controller
 
         switch ($deliveryStatus) {
             case 'Pending':
-                $message = "Dear $customerName, your order has been successfully placed.";
+                $message = "Dear $customerName, your order has been successfully placed.Order no #$request->order_no";
                 break;
             case 'Packing':
-                $message = "Dear $customerName, your product has been packed successfully.";
+                $message = "Dear $customerName, your order has been packed successfully.Order no #$request->order_no";
                 break;
             case 'Sent for Delivery':
-                $message = "Dear $customerName, your product has been sent for delivery.";
+                $message = "Dear $customerName, your order has been sent for delivery.Order no #$request->order_no";
                 break;
             default:
                 // No SMS for other statuses
@@ -207,6 +234,8 @@ class SaleController extends Controller
                 'status' => $request->delivery_status,
                 'address' => $request->address,
                 'phone_no' => $request->contact_number,
+                'payment_status' => $request->status,
+                'payment' => $request->final_total,
             ]);
         }
 
@@ -227,7 +256,8 @@ class SaleController extends Controller
         $sale->save();
 
         // Update associated products
-        $sale->products()->delete(); // Remove existing products
+        $sale->products()->delete();
+        // Remove existing products
         foreach ($request->input('products') as $productData) {
             $sale->products()->create($productData);
         }
@@ -257,10 +287,8 @@ class SaleController extends Controller
     {
         // Validate request
         $request->validate([
-            'delivery_status' => 'required|string|in:Pending,Getting Ready,Packing,Sent for Delivery,Dispatched,Delivered',
+            'delivery_status' => 'required|string:Pending,Getting Ready,Packing,Sent for Delivery,Dispatched,Delivered',
         ]);
-
-
 
         // Redirect to the send for delivery form if status is "Sent for Delivery"
         if ($request->input('delivery_status') === 'Sent for Delivery') {
@@ -268,17 +296,23 @@ class SaleController extends Controller
         }
         else
         {
+            $customer = Customer::where('link_id', $id)->first();
+
+            if ($customer) {
+                // Update the existing customer record
+                $customer->update([
+                    'status' => $request->input('delivery_status')
+                ]);
+            }
+
             // Find sale by ID
-            $sale = Sale::findOrFail($id);
+            // $sale = Sale::findOrFail($id);
+            $sale = Sale::where('cus_id', $id)->firstOrFail();
 
             // Update sale status
             $sale->delivery_status = $request->input('delivery_status');
             $sale->save();
 
-            // Update customer status
-            $customer = Customer::where('link_id', $sale->cus_id)->firstOrFail();
-            $customer->status = $request->input('delivery_status');
-            $customer->save();
 
             // Send SMS based on delivery status
             $customerName = $customer->name;
@@ -288,13 +322,19 @@ class SaleController extends Controller
 
             switch ($deliveryStatus) {
                 case 'Pending':
-                    $message = "Dear $customerName, your order has been successfully placed.";
+                    $message = "Dear $customerName, your order has been successfully placed.Order no #$sale->order_no";
                     break;
                 case 'Packing':
-                    $message = "Dear $customerName, your product has been packed successfully.";
+                    $message = "Dear $customerName, your order has been packed successfully.Order no #$sale->order_no";
                     break;
                 case 'Sent for Delivery':
-                    $message = "Dear $customerName, your product has been sent for delivery.";
+                    $message = "Dear $customerName, your order has been sent for delivery.Order no #$sale->order_no";
+                    break;
+                case 'Dispatched':
+                    $message = "Dear $customerName, your order has been dispatched.Order no #$sale->order_no";
+                    break;
+                case 'Delivered':
+                    $message = "Dear $customerName, your order has been delivered.Order no #$sale->order_no";
                     break;
                 default:
                     // No SMS for other statuses
@@ -436,14 +476,8 @@ class SaleController extends Controller
                 $message = '';
 
                 switch ($deliveryStatus) {
-                    case 'Pending':
-                        $message = "Dear $customerName, your order has been successfully placed.";
-                        break;
-                    case 'Packing':
-                        $message = "Dear $customerName, your product has been packed successfully.";
-                        break;
                     case 'Sent for Delivery':
-                        $message = "Dear $customerName, your product has been sent for delivery.";
+                        $message = "Dear $customerName, your order has been sent for delivery.Order no #$request->order_id";
                         break;
                     default:
                         // No SMS for other statuses
@@ -460,9 +494,6 @@ class SaleController extends Controller
                 return redirect()->route('sales.index')->with('error', 'Failed to add the parcel. Error: ' . $errorMessage);
             }
         }
-
-
-
 
 
 

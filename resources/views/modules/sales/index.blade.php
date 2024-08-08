@@ -54,7 +54,7 @@
                         </form>
                     </td>
                     <td>
-                        <form action="{{ route('sales.updateStatus', $sale->id) }}" method="POST" style="display: inline-block; margin-top: 20px;">
+                        <form action="{{ route('sales.updateStatus', $sale->cus_id) }}" method="POST" style="display: inline-block; margin-top: 20px;">
                             @csrf
                             @method('PATCH')
                             <div class="form-group">

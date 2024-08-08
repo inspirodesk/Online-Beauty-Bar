@@ -8,7 +8,7 @@
     <style>
         @page {
             size: A4;
-            margin: 10px;
+            margin: 10mm;
         }
         @media print {
             html, body {
@@ -17,13 +17,14 @@
                 margin: 0;
                 padding: 0;
                 color: #000;
+                background-color: #fff;
             }
             body {
                 display: flex;
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
-                line-height: 1.1; /* Reduced line height for the entire body */
+                line-height: 1.1;
             }
             .container {
                 display: flex;
@@ -35,12 +36,12 @@
                 page-break-inside: avoid;
             }
             .box {
-                width: 48%;
+                width: 49%;
                 box-sizing: border-box;
                 border: 1px solid #000;
-                padding: 5px;
+                padding: 10px;
                 page-break-inside: avoid;
-                height: calc(50% - 10px); /* Adjust height to fit within the page */
+                height: 63%; /* Adjust height to fit within the page */
                 display: flex;
                 flex-direction: column;
                 justify-content: space-between;
@@ -57,25 +58,29 @@
             }
             .details {
                 text-align: center;
-                font-size: 20px;
+                font-size: 29px;
                 font-weight: bold;
             }
             .info {
-                font-size: 18px;
-                line-height: 1; /* Further reduced line height */
+                font-size: 26px;
+                line-height: 1;
             }
             .highlight {
                 color: red;
                 font-weight: bold;
             }
             .footer {
-                font-size: 14px;
+                font-size: 19px;
                 text-align: center;
-                line-height: 1; /* Further reduced line height */
+                line-height: 1;
             }
             .page-break {
                 page-break-before: always;
+                margin: 10px;
             }
+        }
+        .no-print {
+            display: none;
         }
     </style>
 </head>
@@ -85,13 +90,16 @@
         @foreach ($customers as $customer)
             <div class="box">
                 <div class="logo">
-                    <img src="{{ asset('storage/obb.png') }}" alt="Logo" width="150px">
+                    <img src="https://cdn.inspirodesk.host/obb/obb.png" alt="Logo" width="190px">
                 </div>
-                <div class="details">CUSTOMER DETAILS</div>
-                <div class="info"><strong>Name:</strong> {{ $customer->name }}</div>
-                <div class="info"><strong>Address:</strong> {{ $customer->address }}</div>
-                <div class="info"><strong>Phone No:</strong> {{ $customer->phone_no }}</div>
-                <div class="info"><strong>Total:</strong>  </div>
+                <div class="details"><u>CUSTOMER DETAILS</u></div>
+                <div class="info"><strong>Name:</strong> {{ $customer->name }}<br><br><strong>Address:</strong> {{ $customer->address }}<br><br><strong>Phone No:</strong> {{ $customer->phone_no }}<br><br><strong>Total:</strong>
+                    @if($customer->payment_status ==='completed')
+                        Paid
+                    @else
+                        {{ $customer->payment }}
+                    @endif
+                </div>
                 <div class="footer">
                     IF CUSTOMER NOT REACHABLE DO NOT RETURN THE PACKAGE. PLEASE INFORM OUR HOTLINE 0752070907/ 0757992707/ 0760607096
                 </div>

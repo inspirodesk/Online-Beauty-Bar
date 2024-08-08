@@ -47,6 +47,7 @@
                                     </button>
                                     <div class="dropdown-menu">
                                         <a class="dropdown-item" href="#" data-status="pending">Pending</a>
+                                        <a class="dropdown-item" href="#" data-status="processing">Getting Ready</a>
                                         <a class="dropdown-item" href="#" data-status="send-for-delivery">Send For Delivery</a>
                                         <a class="dropdown-item" href="#" data-status="on-hold">On Hold</a>
                                         <a class="dropdown-item" href="#" data-status="completed">Completed</a>

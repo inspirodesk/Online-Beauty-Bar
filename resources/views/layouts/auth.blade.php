@@ -32,11 +32,7 @@
         <div class="auth-content">
             <div class="authentication-inner row m-0">
                 <div class="d-none d-lg-block col-lg-7 col-xl-8 p-0 img-side">
-                    @if(!empty($setting->login_img) && file_exists(public_path('storage/' . $setting->login_img)))
-                        <img class="img-fluid" width="100%" src="{{ asset('storage/' . $setting->login_img) }}" alt="Login Form Image">
-                    @else
-                        <img class="img-fluid" width="100%" src="https://raw.githubusercontent.com/abisanthm/abisanthm.github.io/main2/loginbg.png" alt="Default Login Form Image">
-                    @endif
+                        <img class="img-fluid" width="100%" src="https://cdn.inspirodesk.host/obb/bg.png" alt="Login Form Image">
                 </div>
                 <div class="d-flex col-12 col-lg-5 col-xl-4 align-items-center authentication-bg p-sm-5 p-4">
                     <div class="w-px-400 mx-auto">

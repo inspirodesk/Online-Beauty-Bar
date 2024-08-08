@@ -20,18 +20,39 @@ class OrderController extends Controller
         $this->woocommerceService = $woocommerceService;
     }
 
+    public function formatSriLankanMobileNumber($inputNumber)
+    {
+        // Remove any non-numeric characters
+        $number = preg_replace('/\D/', '', $inputNumber);
+
+        // Check if the number already starts with 94
+        if (strpos($number, '94') === 0) {
+            // If it does, make sure it's 11 digits long
+            return substr($number, 0, 11);
+        }
+
+        // Remove any leading zeros
+        $number = ltrim($number, '0');
+
+        // Prepend 94 to make it the standard format
+        $formattedNumber = '94' . $number;
+
+        // Ensure the result is 11 digits long
+        return substr($formattedNumber, 0, 11);
+    }
+
     private function sendSms($to, $message)
     {
         // Create a new GuzzleHTTP client instance
         $client = new Client();
-
+        $formattedNumber = $this->formatSriLankanMobileNumber($to);
         // Define the API endpoint and query parameters
         $apiUrl = 'https://app.notify.lk/api/v1/send';
         $params = [
             'user_id' => '27674',
             'api_key' => '8ZfgzJkzwhigCuMcWYLM',
             'sender_id' => 'OnBeautyBar',
-            'to' => $to,
+            'to' => $formattedNumber,
             'message' => $message,
         ];
 
@@ -105,13 +126,12 @@ class OrderController extends Controller
             $customer->link_id = $orderData->id;
             $customer->address = $shipping->address_1.','.$shipping->city.','.$shipping->country;
             $customer->phone_no = $billing->phone;
+            $customer->payment_status =$orderData->payment_method_title;
+            $customer->payment =$orderData->total;
             $customer->save();
         }
         return response()->json(['message' => 'Orders synced successfully']);
     }
-
-
-
 
 
     public function index()
@@ -131,7 +151,7 @@ class OrderController extends Controller
     {
         // Validate request
         $request->validate([
-            'status' => 'required|string|in:pending,send-for-delivery,pending,processing,on-hold,completed,cancelled,refunded',
+            'status' => 'required|string|in:send-for-delivery,pending,processing,on-hold,completed,cancelled,refunded',
         ]);
 
 
@@ -155,9 +175,29 @@ class OrderController extends Controller
 
             // // Update the WooCommerce product status
             $this->woocommerceService->updateProductStatus($order->woocommerce_id, $request->status);
+
+            // Send SMS based on delivery status
+            $customerName = $customer->name;
+            $contactNumber = $customer->phone_no;
+            $deliveryStatus = $request->input('status');
+            $message = '';
+
+            switch ($deliveryStatus) {
+                case 'processing':
+                    $message = "Dear $customerName, your order processing now.Order no #$order->woocommerce_id";
+                    break;
+                case 'completed':
+                    $message = "Dear $customerName,  your order has been delivered.Order no #$order->woocommerce_id";
+                    break;
+                default:
+                    // No SMS for other statuses
+                    break;
+            }
+
+            if ($message) {
+                $this->sendSms($contactNumber, $message);
+            }
         }
-
-
 
         // Redirect with success message
         return redirect()->route('orders.index')->with('success', 'Order status updated successfully.');
@@ -274,14 +314,8 @@ class OrderController extends Controller
              $message = '';
 
              switch ($deliveryStatus) {
-                 case 'Pending':
-                     $message = "Dear $customerName, your order has been successfully placed.";
-                     break;
-                 case 'Packing':
-                     $message = "Dear $customerName, your product has been packed successfully.";
-                     break;
                  case 'Sent for Delivery':
-                     $message = "Dear $customerName, your product has been sent for delivery.";
+                     $message = "Dear $customerName, your order has been sent for delivery.Order no #$order->woocommerce_id";
                      break;
                  default:
                      // No SMS for other statuses

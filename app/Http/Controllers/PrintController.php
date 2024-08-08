@@ -12,7 +12,7 @@ class PrintController extends Controller
     public function index()
     {
         // Fetch customers with processing orders and sales
-        $customers = Customer::where('customers.status', 'Pending')
+        $customers = Customer::whereIn('customers.status', ['processing', 'Getting Ready'])
         ->select('customers.*')
         ->get();
 

@@ -3,11 +3,7 @@
    <div class="app-navbar-wrapper">
      <div class="brand-link brand-logo">
        <a href="#" class="b-brand">
-        @if(!empty($setting->logo) && file_exists(public_path('storage/' . $setting->logo)))
-        <img src="{{ asset('storage/' . $setting->logo) }}" alt="" class="logo logo-lg" style="background-color: {{ $setting->logo_color }};">
-        @else
-            <img src="{{ asset('https://raw.githubusercontent.com/abisanthm/abisanthm.github.io/main2/1.png') }}" alt="Default Image" class="logo logo-lg" style="background-color: {{ $setting->logo_color }};">
-        @endif
+        <img src="https://cdn.inspirodesk.host/obb/logo.png" alt="" class="logo logo-lg" style="background-color: {{ $setting->logo_color }};">
        </a>
      </div>
      <div class="navbar-content">

@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('link_id');
             $table->string('address');
             $table->string('phone_no');
+            $table->string('payment');
+            $table->string('payment_status');
             $table->timestamps();
         });
     }

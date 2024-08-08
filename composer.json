@@ -7,6 +7,7 @@
     "require": {
         "php": "^8.1",
         "automattic/woocommerce": "^3.1",
+        "dinushchathurya/srilankan-mobile-number-validator": "^1.0",
         "guzzlehttp/guzzle": "^7.9",
         "laravel/framework": "^10.10",
         "laravel/sanctum": "^3.3",
@@ -80,7 +81,8 @@
         }
     },
     "files": [
-        "app/Helpers/ConfigHelper.php"
+        "app/Helpers/ConfigHelper.php",
+        "app/Helpers/helpers.php"
     ],
     "minimum-stability": "stable",
     "prefer-stable": true
