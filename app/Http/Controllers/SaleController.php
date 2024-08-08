@@ -88,12 +88,9 @@ class SaleController extends Controller
     // Store a newly created resource in storage
     public function store(Request $request)
     {
-        // Generate a unique ID
-
-
+        // Validate the request
         $request->validate([
             'customer_name' => 'required|string|max:255',
-            'cus_id' => 'required|string|max:255',
             'address' => 'required|string|max:255',
             'contact_number' => 'required|srilankan-mobilecode',
             'whatsapp_number' => 'nullable|string|max:20',
@@ -113,41 +110,41 @@ class SaleController extends Controller
             'products.*.quantity' => 'required|numeric|min:0',
         ]);
 
+        do {
+            $uniqueId = Str::upper(Str::random(8));
+            $exists = Customer::where('link_id', $uniqueId)->exists();
+        } while ($exists);
 
         // Check if the customer exists and their block status
-        $existingCustomer = Sale::where('contact_number', $request->contact_number)->first();
+        $existingCustomer = Customer::where('phone_no', $request->contact_number)->first();
 
         if ($existingCustomer && $existingCustomer->block_status == 'Block') {
             return redirect()->back()->withErrors(['contact_number' => 'This customer is already in the block list.']);
         }
 
-        if (!$existingCustomer) {
-            // If customer does not exist, create a new customer
-            $customer = new Customer();
-            $customer->name = $request->customer_name;
-            $customer->status = $request->delivery_status;
-            $customer->link_id = $request->cus_id;
-            $customer->address = $request->address;
-            $customer->phone_no = $request->contact_number;
-            $customer->payment_status = $request->status;
-            $customer->payment = $request->final_total;
-            $customer->save();
-        } else {
-            // If customer exists, use the existing customer
-            $customer = $existingCustomer;
-            $uniqueId = $request->cus_id;
-        }
+
+        $customer = new Customer();
+        $customer->name = $request->customer_name;
+        $customer->status = $request->delivery_status;
+        $customer->link_id = $uniqueId;
+        $customer->address = $request->address;
+        $customer->phone_no = $request->contact_number;
+        $customer->payment_status = $request->status;
+        $customer->payment = $request->final_total;
+        $customer->save();
+
 
         // Create a new sale
-        $sale = new Sale($request->all());
+        $sale = new Sale();
+        $sale->fill($request->except(['products', 'attachment']));
+        $sale->cus_id = $uniqueId;
+        $sale->block_status = 'Active';
 
         if ($request->hasFile('attachment')) {
             $path = $request->file('attachment')->store('attachments');
             $sale->attachment = $path;
         }
 
-        $sale->cus_id = $request->cus_id;
-        $sale->block_status = 'Active';
         $sale->save();
 
         // Save associated products
@@ -163,13 +160,13 @@ class SaleController extends Controller
 
         switch ($deliveryStatus) {
             case 'Pending':
-                $message = "Dear $customerName, your order has been successfully placed.Order no #$request->order_no";
+                $message = "Dear $customerName, your order has been successfully placed. Order no #{$request->order_no}";
                 break;
             case 'Packing':
-                $message = "Dear $customerName, your order has been packed successfully.Order no #$request->order_no";
+                $message = "Dear $customerName, your order has been packed successfully. Order no #{$request->order_no}";
                 break;
             case 'Sent for Delivery':
-                $message = "Dear $customerName, your order has been sent for delivery.Order no #$request->order_no";
+                $message = "Dear $customerName, your order has been sent for delivery. Order no #{$request->order_no}";
                 break;
             default:
                 // No SMS for other statuses
@@ -182,6 +179,7 @@ class SaleController extends Controller
 
         return redirect()->route('sales.index')->with('success', 'Sale created successfully.');
     }
+
 
 
 
@@ -211,7 +209,7 @@ class SaleController extends Controller
             'order_no' => 'required|string|max:50',
             'track_no' => 'required|string|max:50',
             'payment_method' => 'required|string|max:50',
-            'status' => 'required|string|max:50',
+            'status' => 'required|string|max:255',
             'delivery_status' => 'nullable|string|max:50',
             'discount' => 'nullable|numeric|min:0',
             'delivery' => 'nullable|numeric|min:0',
@@ -232,6 +230,7 @@ class SaleController extends Controller
             $customer->update([
                 'name' => $request->customer_name,
                 'status' => $request->delivery_status,
+                'link_id' => $request->cus_id,
                 'address' => $request->address,
                 'phone_no' => $request->contact_number,
                 'payment_status' => $request->status,
@@ -315,9 +314,9 @@ class SaleController extends Controller
 
 
             // Send SMS based on delivery status
-            $customerName = $customer->name;
-            $contactNumber = $customer->phone_no;
-            $deliveryStatus = $customer->status;
+            $customerName =  $sale->customer_name;
+            $contactNumber = $sale->contact_number;
+            $deliveryStatus = $request->input('delivery_status');
             $message = '';
 
             switch ($deliveryStatus) {

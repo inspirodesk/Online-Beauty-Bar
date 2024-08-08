@@ -88,21 +88,35 @@
     <button onclick="window.print()" class="btn btn-primary no-print">Print</button>
     <div class="container">
         @foreach ($customers as $customer)
-            <div class="box">
-                <div class="logo">
-                    <img src="https://cdn.inspirodesk.host/obb/obb.png" alt="Logo" width="190px">
-                </div>
-                <div class="details"><u>CUSTOMER DETAILS</u></div>
-                <div class="info"><strong>Name:</strong> {{ $customer->name }}<br><br><strong>Address:</strong> {{ $customer->address }}<br><br><strong>Phone No:</strong> {{ $customer->phone_no }}<br><br><strong>Total:</strong>
-                    @if($customer->payment_status ==='completed')
-                        Paid
-                    @else
-                        {{ $customer->payment }}
-                    @endif
-                </div>
-                <div class="footer">
-                    IF CUSTOMER NOT REACHABLE DO NOT RETURN THE PACKAGE. PLEASE INFORM OUR HOTLINE 0752070907/ 0757992707/ 0760607096
-                </div>
+            <div class="box" style="font-size:23px;padding-top:18px">
+                <table border="2">
+                    <tr>
+                        <td><img src="https://cdn.inspirodesk.host/obb/obb.png" alt="Logo" width="190px"></td>
+                    </tr>
+                    <tr >
+                        <td style="padding: 15px"><strong><u>Recipient Details</u></strong><br><br>
+                            <strong>Name:</strong> {{ $customer->name }}<br><strong>Address:</strong> {{ $customer->address }}<br><strong>Phone No:</strong> {{ $customer->phone_no }}<br><br>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 15px"><u><strong>From</u></strong><br><br>
+                            <strong>Name:</strong> Online Beauty Bar<br>
+                            <strong>Address:</strong><br> 53/15/CT, Peer Saibo Street Colombo 12<br>
+                            <strong>Contact No:</strong> 94752070907<br><strong>Total:</strong>
+                        @if($customer->payment_status ==='completed')
+                            Paid
+                        @else
+                            {{ $customer->payment }}
+                        @endif
+                        <br><br>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 15px">
+                            IF CUSTOMER NOT REACHABLE DO NOT RETURN THE PACKAGE. PLEASE INFORM OUR HOTLINE<strong> 0752070907/ 0757992707/ 0760607096</strong>
+                        </td>
+                    </tr>
+                </table>
             </div>
             @if ($loop->iteration % 4 == 0 && !$loop->last)
                 <div class="page-break"></div>

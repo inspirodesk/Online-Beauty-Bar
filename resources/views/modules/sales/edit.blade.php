@@ -22,7 +22,7 @@
                 <div class="form-group">
                     <label for="customer_name">Customer Name:</label>
                     <input type="text" class="form-control" id="customer_name" name="customer_name" value="{{ old('customer_name', $sale->customer_name) }}" required>
-                    <input type="hidden" class="form-control" id="cus_id" name="cus_id" value="{{ old('cus_id', $sale->cus_id) }}" required>
+                    <input type="text" class="form-control" id="cus_id" name="cus_id" value="{{ old('cus_id', $sale->cus_id) }}" required>
                 </div>
             </div>
             <div class="col-md-3 col-12">

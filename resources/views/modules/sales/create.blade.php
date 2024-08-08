@@ -21,7 +21,6 @@
                 <div class="form-group">
                     <label for="customer_name">Customer Name:</label>
                     <input type="text" class="form-control" id="customer_name" name="customer_name" value="{{ old('customer_name') }}" required>
-                    <input type="hidden" name="cus_id" value="{{ $uniqueId }}">
                 </div>
             </div>
             <div class="col-md-3 col-12">
