@@ -64,7 +64,10 @@ class SaleController extends Controller
     // Display a listing of the resource
     public function index()
     {
-        $sales = Sale::with('products')->where('block_status', 'Active')->get();
+        $sales = Sale::with('products')
+        ->where('block_status', 'Active')
+        ->orderBy('id', 'desc') // Replace 'created_at' with your desired column
+        ->get();
         return view('modules.sales.index', compact('sales'));
     }
 
@@ -77,22 +80,23 @@ class SaleController extends Controller
     // Show the form for creating a new resource
     public function create()
     {
-        do {
-            $uniqueId = Str::upper(Str::random(8));
-            $exists = Sale::where('cus_id', $uniqueId)->exists();
-        } while ($exists);
 
-        return view('modules.sales.create',compact('uniqueId'));
+        $latestSale = Sale::orderBy('id', 'desc')->first();
+        $nextId = $latestSale ? $latestSale->id + 1 : 1;
+
+        $orderId = 'OBB.' . $nextId;
+
+        return view('modules.sales.create',compact('orderId'));
     }
 
     // Store a newly created resource in storage
     public function store(Request $request)
     {
         // Validate the request
-        $request->validate([
+        $validatedData = $request->validate([
             'customer_name' => 'required|string|max:255',
             'address' => 'required|string|max:255',
-            'contact_number' => 'required|srilankan-mobilecode',
+            'contact_number' => 'required',
             'whatsapp_number' => 'nullable|string|max:20',
             'order_no' => 'required|string|max:50',
             'track_no' => 'required|string|max:50',
@@ -110,6 +114,7 @@ class SaleController extends Controller
             'products.*.quantity' => 'required|numeric|min:0',
         ]);
 
+        // Generate a unique ID for the customer
         do {
             $uniqueId = Str::upper(Str::random(8));
             $exists = Customer::where('link_id', $uniqueId)->exists();
@@ -122,24 +127,25 @@ class SaleController extends Controller
             return redirect()->back()->withErrors(['contact_number' => 'This customer is already in the block list.']);
         }
 
-
-        $customer = new Customer();
-        $customer->name = $request->customer_name;
-        $customer->status = $request->delivery_status;
-        $customer->link_id = $uniqueId;
-        $customer->address = $request->address;
-        $customer->phone_no = $request->contact_number;
-        $customer->payment_status = $request->status;
-        $customer->payment = $request->final_total;
-        $customer->save();
-
+        // Create or update customer details
+        $customer = Customer::updateOrCreate(
+            ['phone_no' => $request->contact_number],
+            [
+                'name' => $request->customer_name,
+                'status' => $request->delivery_status,
+                'link_id' => $uniqueId,
+                'address' => $request->address,
+                'payment_status' => $request->status,
+                'payment' => $request->final_total,
+            ]
+        );
 
         // Create a new sale
-        $sale = new Sale();
-        $sale->fill($request->except(['products', 'attachment']));
+        $sale = new Sale($request->except(['products', 'attachment']));
         $sale->cus_id = $uniqueId;
         $sale->block_status = 'Active';
 
+        // Handle file attachment
         if ($request->hasFile('attachment')) {
             $path = $request->file('attachment')->store('attachments');
             $sale->attachment = $path;
@@ -173,12 +179,14 @@ class SaleController extends Controller
                 break;
         }
 
-        if ($message) {
-            $this->sendSms($contactNumber, $message);
-        }
+        // Uncomment and implement this method if needed
+        // if ($message) {
+        //     $this->sendSms($contactNumber, $message);
+        // }
 
         return redirect()->route('sales.index')->with('success', 'Sale created successfully.');
     }
+
 
 
 
@@ -286,7 +294,7 @@ class SaleController extends Controller
     {
         // Validate request
         $request->validate([
-            'delivery_status' => 'required|string:Pending,Getting Ready,Packing,Sent for Delivery,Dispatched,Delivered',
+            'delivery_status' => 'required|string:Processing,Getting Ready,Packing,Sent for Delivery,Dispatched,Delivered',
         ]);
 
         // Redirect to the send for delivery form if status is "Sent for Delivery"
@@ -340,9 +348,9 @@ class SaleController extends Controller
                     break;
             }
 
-            if ($message) {
-                $this->sendSms($contactNumber, $message);
-            }
+            // if ($message) {
+            //     $this->sendSms($contactNumber, $message);
+            // }
         }
 
         // Redirect with success message
@@ -383,13 +391,15 @@ class SaleController extends Controller
     public function sendForDelivery($id)
     {
         // Fetch sale details
-        $sale = Sale::findOrFail($id);
+        // $sale = Sale::findOrFail($id);
+
+        $sale = Sale::where('cus_id', $id)->firstOrFail();
 
         // Fetch recipient details
         $recipient_name = $sale->customer_name;
         $recipient_contact_no = $sale->contact_number;
         $recipient_address = $sale->address;
-        $recipient_city = ''; // Assuming this is a constant or fetched from the database
+        $recipient_city = $sale->address;; // Assuming this is a constant or fetched from the database
         $order_id = $sale->order_no;
         $cus_id = $sale->cus_id;
 
@@ -483,9 +493,9 @@ class SaleController extends Controller
                         break;
                 }
 
-                if ($message) {
-                    $this->sendSms($contactNumber, $message);
-                }
+                // if ($message) {
+                //     $this->sendSms($contactNumber, $message);
+                // }
 
                 return redirect()->route('sales.index')->with('success', 'Parcel successfully added. Waybill No: ' . $responseBody['waybill_no']);
             } else {

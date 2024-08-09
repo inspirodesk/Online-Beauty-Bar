@@ -31,30 +31,31 @@
             </div>
             <div class="col-md-3 col-12">
                 <div class="form-group">
+                    <label for="track_no">City:</label>
+                    <input type="text" class="form-control" id="track_no" name="track_no" value="{{ old('track_no') }}" required>
+                </div>
+            </div>
+            <div class="col-md-3 col-12">
+                <div class="form-group">
                     <label for="contact_number">Contact Number:</label>
                     <input type="text" class="form-control" id="contact_number" name="contact_number" value="{{ old('contact_number') }}" required>
                 </div>
             </div>
+                       
+        </div>
+        <div class="row">
             <div class="col-md-3 col-12">
                 <div class="form-group">
                     <label for="whatsapp_number">WhatsApp Number:</label>
                     <input type="text" class="form-control" id="whatsapp_number" name="whatsapp_number" value="{{ old('whatsapp_number') }}">
                 </div>
             </div>
-        </div>
-        <div class="row">
             <div class="col-md-3 col-12">
                 <div class="form-group">
                     <label for="order_no">Order No:</label>
-                    <input type="text" class="form-control" id="order_no" name="order_no" value="{{ old('order_no') }}" required>
+                    <input type="text" class="form-control" id="order_no" name="order_no" value="{{ $orderId }}" readonly>
                 </div>
-            </div>
-            <div class="col-md-3 col-12">
-                <div class="form-group">
-                    <label for="track_no">Track No:</label>
-                    <input type="text" class="form-control" id="track_no" name="track_no" value="{{ old('track_no') }}" required>
-                </div>
-            </div>
+            </div>           
             <div class="col-md-3 col-12">
                 <div class="form-group">
                     <label for="payment_method">Payment Method:</label>
@@ -72,7 +73,7 @@
                     <label for="status">Status:</label>
                     <select class="form-control" id="status" name="status" required>
                         <option value="pending">Pending</option>
-                        <option value="completed">Completed</option>
+                        <option value="completed">Paid</option>
                     </select>
                 </div>
             </div>
@@ -81,13 +82,10 @@
             <div class="col-md-3 col-12">
                 <div class="form-group">
                     <label for="delivery_status">Delivery Status:</label>
-                    <select class="form-control" id="delivery_status" name="delivery_status">
-                        <option value="Pending" selected>Pending</option>
-                        <option value="Getting Ready">Getting Ready</option>
-                        <option value="Packing">Packing</option>
-                        <option value="Sent for Delivery">Sent for Delivery</option>
-                        <option value="Dispatched">Dispatched</option>
-                        <option value="Delivered">Delivered</option>
+                    <select class="form-control" id="delivery_status" name="delivery_status" required>
+                        <option value="Pending" selected>Processing</option>
+                        <option value="Sent for Delivery">Sent to Delivery</option>
+                        <option value="Delivered">Completed</option>
                     </select>
                 </div>
             </div>
@@ -100,7 +98,7 @@
         </div>
         <hr><br>
         <div class="row">
-            <div class="col-12">
+            <div class="col-md-8 col-12">
                 <div id="products-container">
                     <div class="row product-row">
                         <div class="col-md-3 col-12">
@@ -129,9 +127,7 @@
                 </div>
                 <button style="margin-top: 30px" type="button" id="add-product-btn" class="btn btn-sm btn-primary">Add New Product</button>
             </div>
-        </div>
-        <div class="row mt-4">
-            <div class="col-md-4 col-12 offset-md-8">
+            <div class="col-md-4 col-12" ><br>
                 <div class="form-group">
                     <label for="delivery_amount">Delivery Amount:</label>
                     <input type="number" class="form-control" id="delivery_amount" name="delivery" value="{{ old('delivery_amount') }}" step="0.01">

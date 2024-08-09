@@ -22,7 +22,7 @@
                 <div class="form-group">
                     <label for="customer_name">Customer Name:</label>
                     <input type="text" class="form-control" id="customer_name" name="customer_name" value="{{ old('customer_name', $sale->customer_name) }}" required>
-                    <input type="text" class="form-control" id="cus_id" name="cus_id" value="{{ old('cus_id', $sale->cus_id) }}" required>
+                    <input type="hidden" class="form-control" id="cus_id" name="cus_id" value="{{ old('cus_id', $sale->cus_id) }}" required>
                 </div>
             </div>
             <div class="col-md-3 col-12">
@@ -33,30 +33,31 @@
             </div>
             <div class="col-md-3 col-12">
                 <div class="form-group">
-                    <label for="contact_number">Contact Number:</label>
-                    <input type="text" class="form-control" id="contact_number" name="contact_number" value="{{ old('contact_number', $sale->contact_number) }}" required>
+                    <label for="track_no">City:</label>
+                    <input type="text" class="form-control" id="track_no" name="track_no" value="{{ old('track_no', $sale->track_no) }}" required>
                 </div>
             </div>
             <div class="col-md-3 col-12">
                 <div class="form-group">
-                    <label for="whatsapp_number">WhatsApp Number:</label>
-                    <input type="text" class="form-control" id="whatsapp_number" name="whatsapp_number" value="{{ old('whatsapp_number', $sale->whatsapp_number) }}">
+                    <label for="contact_number">Contact Number:</label>
+                    <input type="text" class="form-control" id="contact_number" name="contact_number" value="{{ old('contact_number', $sale->contact_number) }}" required>
                 </div>
             </div>
         </div>
         <div class="row">
             <div class="col-md-3 col-12">
                 <div class="form-group">
-                    <label for="order_no">Order No:</label>
-                    <input type="text" class="form-control" id="order_no" name="order_no" value="{{ old('order_no', $sale->order_no) }}" required>
+                    <label for="whatsapp_number">WhatsApp Number:</label>
+                    <input type="text" class="form-control" id="whatsapp_number" name="whatsapp_number" value="{{ old('whatsapp_number', $sale->whatsapp_number) }}">
                 </div>
             </div>
             <div class="col-md-3 col-12">
                 <div class="form-group">
-                    <label for="track_no">Track No:</label>
-                    <input type="text" class="form-control" id="track_no" name="track_no" value="{{ old('track_no', $sale->track_no) }}" required>
+                    <label for="order_no">Order No:</label>
+                    <input type="text" class="form-control" id="order_no" name="order_no" value="{{ old('order_no', $sale->order_no) }}" readonly>
                 </div>
             </div>
+            
             <div class="col-md-3 col-12">
                 <div class="form-group">
                     <label for="payment_method">Payment Method:</label>
@@ -74,7 +75,7 @@
                     <label for="status">Status:</label>
                     <select class="form-control" id="status" name="status" required>
                         <option value="pending" {{ old('status', $sale->status) == 'pending' ? 'selected' : '' }}>Pending</option>
-                        <option value="completed" {{ old('status', $sale->status) == 'completed' ? 'selected' : '' }}>Completed</option>
+                        <option value="completed" {{ old('status', $sale->status) == 'completed' ? 'selected' : '' }}>Paid</option>
                     </select>
                 </div>
             </div>
@@ -83,13 +84,10 @@
             <div class="col-md-3 col-12" style="display: none;">
                 <div class="form-group">
                     <label for="delivery_status">Delivery Status:</label>
-                    <select class="form-control" id="delivery_status" name="delivery_status">
-                        <option value="Pending" {{ old('delivery_status', $sale->delivery_status) == 'Pending' ? 'selected' : '' }}>Pending</option>
-                        <option value="Getting Ready" {{ old('delivery_status', $sale->delivery_status) == 'Getting Ready' ? 'selected' : '' }}>Getting Ready</option>
-                        <option value="Packing" {{ old('delivery_status', $sale->delivery_status) == 'Packing' ? 'selected' : '' }}>Packing</option>
-                        <option value="Sent for Delivery" {{ old('delivery_status', $sale->delivery_status) == 'Sent for Delivery' ? 'selected' : '' }}>Sent for Delivery</option>
-                        <option value="Dispatched" {{ old('delivery_status', $sale->delivery_status) == 'Dispatched' ? 'selected' : '' }}>Dispatched</option>
-                        <option value="Delivered" {{ old('delivery_status', $sale->delivery_status) == 'Delivered' ? 'selected' : '' }}>Delivered</option>
+                    <select class="form-control" id="delivery_status" name="delivery_status" required>
+                        <option value="Pending" {{ old('delivery_status', $sale->delivery_status) == 'Pending' ? 'selected' : '' }}>Processing</option>
+                        <option value="Sent for Delivery" {{ old('delivery_status', $sale->delivery_status) == 'Sent for Delivery' ? 'selected' : '' }}>Sent to Delivery</option>
+                        <option value="Delivered" {{ old('delivery_status', $sale->delivery_status) == 'Delivered' ? 'selected' : '' }}>Completed</option>
                     </select>
                 </div>
             </div>
@@ -102,7 +100,7 @@
         </div>
         <hr><br>
         <div class="row">
-            <div class="col-12">
+            <div class="col-md-8 col-12">
                 <div id="products-container">
                     @foreach ($sale->products as $index => $product)
                     <div class="row product-row">
@@ -132,25 +130,23 @@
                 </div>
                 <button style="margin-top: 30px" type="button" id="add-product-btn" class="btn btn-sm btn-primary">Add New Product</button>
             </div>
-        </div>
-        <div class="row mt-4">
-            <div class="col-md-4 col-12 offset-md-8">
-                <div class="form-group">
-                    <label for="delivery_amount">Delivery Amount:</label>
-                    <input type="number" class="form-control" id="delivery_amount" name="delivery" value="{{ old('delivery', $sale->delivery) }}" step="0.01">
-                </div>
-                <div class="form-group">
-                    <label for="discount">Discount:</label>
-                    <input type="number" class="form-control" id="discount" name="discount" value="{{ old('discount', $sale->discount) }}" step="0.01">
-                </div>
-                <div class="form-group">
-                    <label for="subtotal">Subtotal:</label>
-                    <input type="number" class="form-control" id="subtotal" name="subtotal" value="{{ old('subtotal', $sale->subtotal) }}" readonly>
-                </div>
-                <div class="form-group">
-                    <label for="final_total">Final Total:</label>
-                    <input type="number" class="form-control" id="final_total" name="final_total" value="{{ old('final_total', $sale->final_total) }}" readonly>
-                </div>
+            <div class="col-md-4 col-12" ><br>
+                    <div class="form-group">
+                        <label for="delivery_amount">Delivery Amount:</label>
+                        <input type="number" class="form-control" id="delivery_amount" name="delivery" value="{{ old('delivery', $sale->delivery) }}" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label for="discount">Discount:</label>
+                        <input type="number" class="form-control" id="discount" name="discount" value="{{ old('discount', $sale->discount) }}" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label for="subtotal">Subtotal:</label>
+                        <input type="number" class="form-control" id="subtotal" name="subtotal" value="{{ old('subtotal', $sale->subtotal) }}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="final_total">Final Total:</label>
+                        <input type="number" class="form-control" id="final_total" name="final_total" value="{{ old('final_total', $sale->final_total) }}" readonly>
+                    </div>
                 <div class="form-group text-center">
                     <button type="submit" class="btn btn-sm btn-primary">Submit</button>
                 </div>

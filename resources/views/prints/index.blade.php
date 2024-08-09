@@ -36,18 +36,18 @@
                 page-break-inside: avoid;
             }
             .box {
-                width: 49%;
-                box-sizing: border-box;
-                border: 1px solid #000;
-                padding: 10px;
-                page-break-inside: avoid;
-                height: 63%; /* Adjust height to fit within the page */
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-                background-color: #fff;
-                color: #000;
-            }
+            width: 50%; /* Slightly less than 50% to allow space between */
+            box-sizing: border-box;
+            padding: 5px;
+            page-break-inside: avoid;
+            height: 45%; /* Adjust height to fit within the page */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background-color: #fff;
+            color: #000;
+            margin-bottom: 200px; /* Space between rows of boxes */
+        }
             .logo {
                 text-align: center;
                 margin-bottom: 5px;
@@ -95,19 +95,19 @@
                     </tr>
                     <tr >
                         <td style="padding: 15px"><strong><u>Recipient Details</u></strong><br><br>
-                            <strong>Name:</strong> {{ $customer->name }}<br><strong>Address:</strong> {{ $customer->address }}<br><strong>Phone No:</strong> {{ $customer->phone_no }}<br><br>
+                            <strong>Name:</strong> {{ $customer->name }}<br><strong>Address:</strong> {{ $customer->address }}<br><strong>Phone No:</strong> {{ $customer->phone_no }}<br><strong>Total:</strong>
+                        @if($customer->payment_status ==='completed')
+                            Paid
+                        @else
+                            {{ $customer->payment }}
+                        @endif
                         </td>
                     </tr>
                     <tr>
                         <td style="padding: 15px"><u><strong>From</u></strong><br><br>
                             <strong>Name:</strong> Online Beauty Bar<br>
                             <strong>Address:</strong><br> 53/15/CT, Peer Saibo Street Colombo 12<br>
-                            <strong>Contact No:</strong> 94752070907<br><strong>Total:</strong>
-                        @if($customer->payment_status ==='completed')
-                            Paid
-                        @else
-                            {{ $customer->payment }}
-                        @endif
+                            <strong>Contact No:</strong> 94752070907
                         <br><br>
                         </td>
                     </tr>
@@ -119,9 +119,15 @@
                 </table>
             </div>
             @if ($loop->iteration % 4 == 0 && !$loop->last)
-                <div class="page-break"></div>
+
             @endif
         @endforeach
     </div>
+    <script>
+        // Automatically trigger the print dialog when the page loads
+        window.onload = function() {
+            window.print();
+        };
+    </script>
 </body>
 </html>

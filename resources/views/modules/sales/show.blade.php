@@ -20,6 +20,8 @@
                 <b>Full Name : </b>{{ $sale->customer_name }}<br>
                 <b>Address : </b>{{ $sale->address }}
                 <br>
+                <b>City : </b>{{ $sale->track_no }}
+                <br>
                 <b>Mobile : </b>{{ $sale->contact_number }}
                 <br>
                 <b>WhatsApp : </b>{{ $sale->whatsapp_number }}
@@ -45,7 +47,7 @@
             <td>
                 <b>Payment Method : </b>{{ $sale->payment_method }}<br>
                 <b>Payment Status : </b>{{ $sale->status }}<br>
-                <b>Order Status : </b>{{ $sale->delivery_status }}<br>
+                <b>Order Status : </b>@if($sale->delivery_status=='Pending') Processing @else{{ $sale->delivery_status }}@endif<br>
             </td>
         </tr>
     </table>
